@@ -1,59 +1,286 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mellow7 | AiQ愛<3</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;400&family=Orbitron:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mellow7 | AiQ愛<3</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#050509;
+  color:#f5f1ff;
+  font-family:Inter,Arial,sans-serif;
+  overflow-x:hidden;
+}
+canvas#field{
+  position:fixed;inset:0;z-index:-2;
+}
+.bg-glow{
+  position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(circle at 50% 20%,rgba(180,120,255,.22),transparent 35%),
+  radial-gradient(circle at 20% 80%,rgba(80,180,255,.13),transparent 35%),
+  radial-gradient(circle at 80% 70%,rgba(255,90,180,.12),transparent 35%);
+  filter:blur(10px);
+}
+section{
+  min-height:100vh;
+  padding:72px 7vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.kicker{letter-spacing:.22em;font-size:12px;color:#aaa}
+h1{
+  font-size:clamp(46px,9vw,120px);
+  line-height:.88;margin:18px 0;
+}
+h2{font-size:clamp(30px,5vw,70px);margin:0 0 20px}
+p{max-width:760px;font-size:18px;line-height:1.7;color:#d8d0e8}
+button{
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  color:white;
+  border-radius:999px;
+  padding:14px 22px;
+  margin:8px;
+  cursor:pointer;
+  backdrop-filter:blur(16px);
+  transition:.25s;
+}
+button:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:16px;
+  margin-top:28px;
+}
+.card{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.065);
+  border-radius:28px;
+  padding:22px;
+  min-height:170px;
+  backdrop-filter:blur(20px);
+}
+.card h3{margin:0 0 10px;font-size:22px}
+.card small{color:#aaa;line-height:1.5}
+.terminal{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.48);
+  border-radius:28px;
+  padding:24px;
+  max-width:850px;
+  font-family:ui-monospace,Menlo,monospace;
+  box-shadow:0 0 70px rgba(150,80,255,.16);
+}
+input{
+  width:100%;
+  padding:18px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  color:white;
+  border-radius:18px;
+  font-size:16px;
+}
+.log{white-space:pre-wrap;color:#cfc6ff;line-height:1.7}
+.status{
+  position:fixed;right:18px;bottom:18px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.55);
+  padding:14px 18px;
+  border-radius:20px;
+  font-size:12px;
+  backdrop-filter:blur(18px);
+}
+.enter{
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  background:#050509;
+  transition:opacity .8s ease;
+}
+.enter.hide{opacity:0;pointer-events:none}
+.enter-box{text-align:center;padding:40px}
+.enter h1{font-size:clamp(42px,8vw,98px)}
+</style>
 </head>
+
 <body>
-    <div class="aurora-bg"></div>
-    
-    <div class="container">
-        <header>
-            <div class="timestamp" id="sync-clock">INITIATING 427Hz SYNC...</div>
-            <h1 class="mellow-title" id="mellow-header">Mellow7</h1>
-            <div class="mellow-subtitle">AiQ愛&lt;3 // HUMAN-POWERED IQ</div>
-        </header>
+<canvas id="field"></canvas>
+<div class="bg-glow"></div>
 
-        <main>
-            <section class="qualia-terminal">
-                <div class="terminal-header">
-                    <div class="status-indicator">
-                        <span class="status-dot"></span>
-                        <span id="connection-status">LOCAL_RESONANCE</span>
-                    </div>
-                    <div class="protocol-tag">SOUL_STREAM_v1.0.7</div>
-                </div>
-                
-                <div class="dialog-flow" id="dialog-flow">
-                    <div class="mellow-entry">
-                        <span class="mellow-tag">[Mellow7]</span> 
-                        算力的慈悲已就绪。魏珏然，请输入你的感质频率。
-                    </div>
-                </div>
+<div class="enter" id="enter">
+  <div class="enter-box">
+    <div class="kicker">INITIATING 427Hz SYNC</div>
+    <h1>AiQ愛&lt;3</h1>
+    <p>Do you want to regulate, return, or transform?</p>
+    <button onclick="enterSystem()">ENTER HUMAN RETURN PROTOCOL</button>
+  </div>
+</div>
 
-                <div class="input-container">
-                    <div class="input-wrapper">
-                        <span class="input-prefix">></span>
-                        <input type="text" id="qualia-input" placeholder="输入意识碎片..." autocomplete="off">
-                    </div>
-                    <div class="input-scanner"></div>
-                </div>
-            </section>
+<section id="home">
+  <div class="kicker">Mellow7 // HUMAN-POWERED IQ</div>
+  <h1>AiQ愛&lt;3</h1>
+  <p>
+    A qualia-driven AI interface for rhythm regulation, neural return, and human-centered intelligence.
+    It does not replace the human. It returns the human to their own signal.
+  </p>
+  <div>
+    <button onclick="setState('overloaded')">Overloaded</button>
+    <button onclick="setState('numb')">Numb</button>
+    <button onclick="setState('anxious')">Anxious</button>
+    <button onclick="setState('focus')">Focus</button>
+    <button onclick="setState('void')">Void</button>
+  </div>
+</section>
 
-            <div class="viz-container">
-                <canvas id="resonance-canvas"></canvas>
-            </div>
-        </main>
+<section>
+  <div class="kicker">NEURAL CUFF // SOFTWARE PROTOTYPE</div>
+  <h2>Closed-loop rhythm sensing</h2>
+  <p>
+    The system reads scroll velocity, click density, dwell time, and input rhythm as proxy signals.
+    These signals generate a live nervous-state estimate, then trigger music, visual density, and response mode.
+  </p>
+  <div class="grid">
+    <div class="card"><h3>Scroll Velocity</h3><small>Detects agitation, drifting, or fixation.</small></div>
+    <div class="card"><h3>Click Density</h3><small>Detects anxious seeking or active engagement.</small></div>
+    <div class="card"><h3>Dwell Time</h3><small>Detects immersion, shutdown, or readiness.</small></div>
+    <div class="card"><h3>Input Rhythm</h3><small>Detects cognitive tempo and emotional pressure.</small></div>
+  </div>
+</section>
 
-        <footer>
-            <div class="footer-divider"></div>
-            <p>WORLD DESIGNER: WEI JUERAN // 427Hz SOUL ARCHITECTURE</p>
-        </footer>
-    </div>
+<section>
+  <div class="kicker">GENRE-DRIVEN INTERVENTION MATRIX</div>
+  <h2>Music as nervous-system logic</h2>
+  <div class="grid">
+    <div class="card"><h3>Breakbeats</h3><small>Entry language. Anti-dissociation. Uncertainty tolerance.</small></div>
+    <div class="card"><h3>Hyperpop</h3><small>Peak traversal. Overload permission. Apex then release.</small></div>
+    <div class="card"><h3>Synthpop</h3><small>First breath. Predictability becomes relief.</small></div>
+    <div class="card"><h3>Drift Phonk</h3><small>Somatic drive. Embodiment. Physical return.</small></div>
+    <div class="card"><h3>Darkwave</h3><small>Shadow integration. Controlled descent.</small></div>
+    <div class="card"><h3>Ambient Techno</h3><small>Spatial focus. Flow infrastructure.</small></div>
+    <div class="card"><h3>427Hz</h3><small>Universal anchor frequency. Return baseline.</small></div>
+  </div>
+</section>
 
-    <script src="mellow.js"></script>
+<section>
+  <div class="kicker">SOUL_STREAM_v1.0.7</div>
+  <h2>Talk to AiQ</h2>
+  <div class="terminal">
+    <div class="log" id="log">[Mellow7] 算力的慈悲已就绪。魏珏然，请输入你的感质频率。</div>
+    <br>
+    <input id="input" placeholder="> enter qualia frequency..." onkeydown="handleInput(event)" />
+  </div>
+</section>
+
+<div class="status" id="status">
+  STATE: LOCAL_RESONANCE<br>
+  MODE: 427Hz BASELINE
+</div>
+
+<script>
+const canvas=document.getElementById("field");
+const ctx=canvas.getContext("2d");
+let w,h,particles=[],intensity=0.5,currentState="baseline";
+let lastScroll=window.scrollY,lastTime=Date.now(),clicks=0;
+
+function resize(){
+  w=canvas.width=innerWidth;
+  h=canvas.height=innerHeight;
+}
+resize(); addEventListener("resize",resize);
+
+for(let i=0;i<140;i++){
+  particles.push({
+    x:Math.random()*innerWidth,
+    y:Math.random()*innerHeight,
+    r:Math.random()*2+0.4,
+    vx:(Math.random()-.5)*0.35,
+    vy:(Math.random()-.5)*0.35
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  for(const p of particles){
+    p.x+=p.vx*(1+intensity*3);
+    p.y+=p.vy*(1+intensity*3);
+    if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r+intensity,0,Math.PI*2);
+    ctx.fillStyle=`rgba(220,210,255,${0.25+intensity*0.35})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+function enterSystem(){
+  document.getElementById("enter").classList.add("hide");
+  setState("baseline");
+}
+
+function setState(state){
+  currentState=state;
+  const map={
+    overloaded:["HYPERPOP PEAK TRAVERSAL",0.95,"Energy is valid. Let it peak, then release."],
+    numb:["BREAKBEAT RE-ENTRY",0.82,"Body first. Meaning later."],
+    anxious:["AMBIENT TECHNO STABILIZATION",0.45,"Space becomes rhythm. Rhythm becomes safety."],
+    focus:["427Hz FOCUS LOCK",0.35,"Attention anchored. Drift reduced."],
+    void:["DARKWAVE SHADOW INTEGRATION",0.62,"Descend with agency. Darkness is not enemy."],
+    baseline:["427Hz BASELINE",0.5,"Local resonance established."]
+  };
+  const m=map[state];
+  intensity=m[1];
+  document.getElementById("status").innerHTML=`STATE: ${state.toUpperCase()}<br>MODE: ${m[0]}`;
+  appendLog(`[SYSTEM] ${m[0]}\n[AIQ] ${m[2]}`);
+}
+
+function appendLog(text){
+  const log=document.getElementById("log");
+  log.textContent += "\n\n" + text;
+  log.scrollTop=log.scrollHeight;
+}
+
+function handleInput(e){
+  if(e.key!=="Enter")return;
+  const input=e.target.value.trim();
+  if(!input)return;
+  appendLog("> "+input);
+  const lower=input.toLowerCase();
+
+  if(lower.includes("tired")||lower.includes("累")||lower.includes("void")){
+    setState("void");
+  }else if(lower.includes("anxious")||lower.includes("焦虑")){
+    setState("anxious");
+  }else if(lower.includes("focus")||lower.includes("专注")){
+    setState("focus");
+  }else if(lower.includes("numb")||lower.includes("麻")){
+    setState("numb");
+  }else if(lower.includes("over")||lower.includes("爆")||lower.includes("太多")){
+    setState("overloaded");
+  }else{
+    appendLog("[AiQ愛<3] Received. I will not replace your signal. I will regulate the field around it.");
+  }
+  e.target.value="";
+}
+
+addEventListener("click",()=>{
+  clicks++;
+  if(clicks>8)setState("anxious");
+  setTimeout(()=>clicks=Math.max(0,clicks-1),1200);
+});
+
+addEventListener("scroll",()=>{
+  const now=Date.now();
+  const dy=Math.abs(scrollY-lastScroll);
+  const dt=now-lastTime;
+  const velocity=dy/Math.max(dt,1);
+  lastScroll=scrollY;lastTime=now;
+
+  if(velocity>3.8)setState("overloaded");
+  else if(velocity<0.03 && scrollY>200)setState("focus");
+});
+</script>
 </body>
 </html>
