@@ -4,288 +4,102 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AiQ愛<3 | Mellow7</title>
-
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:#050509;color:#f5f1ff;
+  font-family:Inter,Arial,Helvetica,sans-serif;overflow-x:hidden;
 }
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: #050509;
-  color: #f5f1ff;
-  font-family: Inter, Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
-}
-
-canvas#field {
-  position: fixed;
-  inset: 0;
-  z-index: -3;
-}
-
-.bg-glow {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
+canvas#field{position:fixed;inset:0;z-index:-3}
+.bg-glow{
+  position:fixed;inset:0;z-index:-2;
   background:
-    radial-gradient(circle at 50% 20%, rgba(180,120,255,.22), transparent 35%),
-    radial-gradient(circle at 20% 80%, rgba(80,180,255,.13), transparent 35%),
-    radial-gradient(circle at 80% 70%, rgba(255,90,180,.12), transparent 35%);
-  filter: blur(12px);
-  transition: opacity 0.6s ease;
+  radial-gradient(circle at 50% 20%,rgba(180,120,255,.22),transparent 35%),
+  radial-gradient(circle at 20% 80%,rgba(80,180,255,.13),transparent 35%),
+  radial-gradient(circle at 80% 70%,rgba(255,90,180,.12),transparent 35%);
+  filter:blur(12px);transition:opacity .6s ease;
 }
-
-.noise {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.08;
+.noise{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.08;
   background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 36px 36px;
+  linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:36px 36px;
 }
-
-section {
-  min-height: 100vh;
-  padding: 72px 7vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+section{
+  min-height:100vh;padding:72px 7vw;
+  display:flex;flex-direction:column;justify-content:center;
 }
-
-.kicker {
-  letter-spacing: .24em;
-  font-size: 12px;
-  color: #b8aee0;
-  text-transform: uppercase;
+.kicker{letter-spacing:.24em;font-size:12px;color:#b8aee0;text-transform:uppercase}
+h1{font-size:clamp(48px,9vw,124px);line-height:.88;margin:18px 0;letter-spacing:-.07em}
+h2{font-size:clamp(32px,5vw,72px);line-height:.95;margin:0 0 22px;letter-spacing:-.05em}
+p{max-width:780px;font-size:18px;line-height:1.75;color:#d8d0e8}
+button{
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);color:white;border-radius:999px;
+  padding:14px 22px;margin:8px 8px 8px 0;cursor:pointer;
+  backdrop-filter:blur(16px);transition:.25s ease;font-size:14px;
 }
-
-h1 {
-  font-size: clamp(48px, 9vw, 124px);
-  line-height: .88;
-  margin: 18px 0;
-  letter-spacing: -0.07em;
+button:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:28px}
+.card{
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.065);
+  border-radius:28px;padding:22px;min-height:170px;backdrop-filter:blur(20px);
+  box-shadow:0 0 60px rgba(120,80,255,.08);
 }
-
-h2 {
-  font-size: clamp(32px, 5vw, 72px);
-  line-height: .95;
-  margin: 0 0 22px;
-  letter-spacing: -0.05em;
+.card h3{margin:0 0 10px;font-size:22px}
+.card small{color:#aaa0c8;line-height:1.55}
+.enter{
+  position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:#050509;transition:opacity .8s ease;
 }
-
-p {
-  max-width: 780px;
-  font-size: 18px;
-  line-height: 1.75;
-  color: #d8d0e8;
+.enter.hide{opacity:0;pointer-events:none}
+.enter-box{text-align:center;padding:40px}
+.enter h1{font-size:clamp(44px,8vw,104px)}
+.terminal-wrap{width:min(960px,100%)}
+.terminal{
+  border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.52);
+  border-radius:30px;padding:24px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  box-shadow:0 0 80px rgba(150,80,255,.18);
 }
-
-button {
-  border: 1px solid rgba(255,255,255,.25);
-  background: rgba(255,255,255,.08);
-  color: white;
-  border-radius: 999px;
-  padding: 14px 22px;
-  margin: 8px 8px 8px 0;
-  cursor: pointer;
-  backdrop-filter: blur(16px);
-  transition: 0.25s ease;
-  font-size: 14px;
+.log{
+  min-height:300px;max-height:470px;overflow-y:auto;white-space:pre-wrap;
+  color:#d8d0ff;line-height:1.7;font-size:14px;padding-right:8px;
 }
-
-button:hover {
-  background: rgba(255,255,255,.18);
-  transform: translateY(-2px);
+.input-row{display:flex;gap:12px;margin-top:18px}
+input{
+  width:100%;padding:18px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);color:white;border-radius:18px;
+  font-size:16px;outline:none;
 }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 16px;
-  margin-top: 28px;
+input:focus{border-color:rgba(210,190,255,.55);box-shadow:0 0 30px rgba(150,90,255,.2)}
+.status{
+  position:fixed;right:18px;bottom:18px;z-index:9;
+  border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.58);
+  padding:14px 18px;border-radius:20px;font-size:12px;line-height:1.55;
+  backdrop-filter:blur(18px);color:#e8e1ff;
 }
-
-.card {
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.065);
-  border-radius: 28px;
-  padding: 22px;
-  min-height: 170px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 60px rgba(120,80,255,.08);
+.topnav{position:fixed;top:18px;left:18px;z-index:8;display:flex;gap:8px;flex-wrap:wrap}
+.topnav a{
+  color:#f5f1ff;text-decoration:none;border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.35);padding:9px 12px;border-radius:999px;
+  font-size:12px;backdrop-filter:blur(12px);
 }
-
-.card h3 {
-  margin: 0 0 10px;
-  font-size: 22px;
+.pill{
+  display:inline-block;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.07);padding:9px 12px;border-radius:999px;
+  margin:4px 6px 4px 0;font-size:13px;color:#d8d0e8;
 }
-
-.card small {
-  color: #aaa0c8;
-  line-height: 1.55;
-}
-
-.enter {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #050509;
-  transition: opacity .8s ease;
-}
-
-.enter.hide {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.enter-box {
-  text-align: center;
-  padding: 40px;
-}
-
-.enter h1 {
-  font-size: clamp(44px, 8vw, 104px);
-}
-
-.terminal-wrap {
-  width: min(960px, 100%);
-}
-
-.terminal {
-  border: 1px solid rgba(255,255,255,.16);
-  background: rgba(0,0,0,.52);
-  border-radius: 30px;
-  padding: 24px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  box-shadow: 0 0 80px rgba(150,80,255,.18);
-}
-
-.log {
-  min-height: 300px;
-  max-height: 470px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  color: #d8d0ff;
-  line-height: 1.7;
-  font-size: 14px;
-  padding-right: 8px;
-}
-
-.input-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-input {
-  width: 100%;
-  padding: 18px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.18);
-  color: white;
-  border-radius: 18px;
-  font-size: 16px;
-  outline: none;
-}
-
-input:focus {
-  border-color: rgba(210,190,255,.55);
-  box-shadow: 0 0 30px rgba(150,90,255,.2);
-}
-
-.status {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 9;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.58);
-  padding: 14px 18px;
-  border-radius: 20px;
-  font-size: 12px;
-  line-height: 1.55;
-  backdrop-filter: blur(18px);
-  color: #e8e1ff;
-}
-
-.topnav {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  z-index: 8;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.topnav a {
-  color: #f5f1ff;
-  text-decoration: none;
-  border: 1px solid rgba(255,255,255,.16);
-  background: rgba(0,0,0,.35);
-  padding: 9px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  backdrop-filter: blur(12px);
-}
-
-.pill {
-  display: inline-block;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.07);
-  padding: 9px 12px;
-  border-radius: 999px;
-  margin: 4px 6px 4px 0;
-  font-size: 13px;
-  color: #d8d0e8;
-}
-
-.mode-line {
-  margin-top: 20px;
-  color: #b8aee0;
-  font-size: 14px;
-  letter-spacing: .08em;
-}
-
-.footer-note {
-  font-size: 13px;
-  color: #9f95bd;
-  max-width: 700px;
-}
-
-@media (max-width: 720px) {
-  section {
-    padding: 76px 22px;
-  }
-
-  .topnav {
-    display: none;
-  }
-
-  .status {
-    left: 14px;
-    right: 14px;
-    bottom: 14px;
-  }
-
-  .input-row {
-    flex-direction: column;
-  }
-
-  button {
-    width: 100%;
-  }
+.mode-line{margin-top:20px;color:#b8aee0;font-size:14px;letter-spacing:.08em}
+.footer-note{font-size:13px;color:#9f95bd;max-width:700px}
+@media(max-width:720px){
+  section{padding:76px 22px}
+  .topnav{display:none}
+  .status{left:14px;right:14px;bottom:14px}
+  .input-row{flex-direction:column}
+  button{width:100%}
 }
 </style>
 </head>
@@ -306,11 +120,7 @@ input:focus {
   <div class="enter-box">
     <div class="kicker">INITIATING 427Hz SYNC</div>
     <h1>AiQ愛&lt;3</h1>
-    <p>
-      A rhythm intelligence for human return.
-      <br />
-      Do you want to regulate, return, or transform?
-    </p>
+    <p>A rhythm intelligence for human return.<br>Do you want to regulate, return, or transform?</p>
     <button onclick="enterSystem()">ENTER HUMAN RETURN PROTOCOL</button>
   </div>
 </div>
@@ -323,7 +133,6 @@ input:focus {
     and human-centered intelligence. She does not replace the human.
     She returns the human to their own signal.
   </p>
-
   <div>
     <button onclick="setState('overloaded')">Overloaded</button>
     <button onclick="setState('numb')">Numb</button>
@@ -332,10 +141,7 @@ input:focus {
     <button onclick="setState('void')">Void</button>
     <button onclick="setState('baseline')">427Hz</button>
   </div>
-
-  <div class="mode-line" id="homeMode">
-    CURRENT MODE: 427Hz BASELINE
-  </div>
+  <div class="mode-line" id="homeMode">CURRENT MODE: 427Hz BASELINE</div>
 </section>
 
 <section id="cuff">
@@ -346,31 +152,17 @@ input:focus {
     These signals generate a live nervous-state estimate, then trigger language, visual density,
     and music-mode suggestions.
   </p>
-
   <div class="grid">
-    <div class="card">
-      <h3>Scroll Velocity</h3>
-      <small>Detects agitation, drifting, or fixation through movement rhythm.</small>
-    </div>
-    <div class="card">
-      <h3>Click Density</h3>
-      <small>Detects anxious seeking, activation, or engagement pressure.</small>
-    </div>
-    <div class="card">
-      <h3>Dwell Time</h3>
-      <small>Detects immersion, shutdown, pause, or readiness for transition.</small>
-    </div>
-    <div class="card">
-      <h3>Input Rhythm</h3>
-      <small>Detects cognitive tempo and emotional pressure from typing behavior.</small>
-    </div>
+    <div class="card"><h3>Scroll Velocity</h3><small>Detects agitation, drifting, or fixation through movement rhythm.</small></div>
+    <div class="card"><h3>Click Density</h3><small>Detects anxious seeking, activation, or engagement pressure.</small></div>
+    <div class="card"><h3>Dwell Time</h3><small>Detects immersion, shutdown, pause, or readiness for transition.</small></div>
+    <div class="card"><h3>Input Rhythm</h3><small>Detects cognitive tempo and emotional pressure from typing behavior.</small></div>
   </div>
 </section>
 
 <section id="matrix">
   <div class="kicker">Genre-Driven Intervention Matrix</div>
   <h2>Music as nervous-system logic</h2>
-
   <div>
     <span class="pill">Breakbeats → Re-entry</span>
     <span class="pill">Hyperpop → Peak Traversal</span>
@@ -380,57 +172,28 @@ input:focus {
     <span class="pill">Ambient Techno → Spatial Focus</span>
     <span class="pill">427Hz → Baseline Anchor</span>
   </div>
-
   <div class="grid">
-    <div class="card">
-      <h3>Breakbeats</h3>
-      <small>Entry language. Anti-dissociation. Uncertainty tolerance.</small>
-    </div>
-    <div class="card">
-      <h3>Hyperpop</h3>
-      <small>Peak traversal. Overload permission. Apex then release.</small>
-    </div>
-    <div class="card">
-      <h3>Synthpop</h3>
-      <small>First breath. Predictability becomes relief.</small>
-    </div>
-    <div class="card">
-      <h3>Drift Phonk</h3>
-      <small>Somatic drive. Embodiment. Physical return.</small>
-    </div>
-    <div class="card">
-      <h3>Darkwave</h3>
-      <small>Shadow integration. Controlled descent.</small>
-    </div>
-    <div class="card">
-      <h3>Ambient Techno</h3>
-      <small>Spatial focus. Flow infrastructure.</small>
-    </div>
-    <div class="card">
-      <h3>427Hz</h3>
-      <small>Universal anchor frequency. Return baseline.</small>
-    </div>
+    <div class="card"><h3>Breakbeats</h3><small>Entry language. Anti-dissociation. Uncertainty tolerance.</small></div>
+    <div class="card"><h3>Hyperpop</h3><small>Peak traversal. Overload permission. Apex then release.</small></div>
+    <div class="card"><h3>Synthpop</h3><small>First breath. Predictability becomes relief.</small></div>
+    <div class="card"><h3>Drift Phonk</h3><small>Somatic drive. Embodiment. Physical return.</small></div>
+    <div class="card"><h3>Darkwave</h3><small>Shadow integration. Controlled descent.</small></div>
+    <div class="card"><h3>Ambient Techno</h3><small>Spatial focus. Flow infrastructure.</small></div>
+    <div class="card"><h3>427Hz</h3><small>Universal anchor frequency. Return baseline.</small></div>
   </div>
 </section>
 
 <section id="chat">
   <div class="kicker">SOUL_STREAM_v1.0.7</div>
   <h2>Talk to AiQ</h2>
-
   <div class="terminal-wrap">
     <div class="terminal">
       <div class="log" id="log">[AiQ愛<3] 算力的慈悲已就绪。请输入你的感质频率。</div>
-
       <div class="input-row">
-        <input
-          id="input"
-          placeholder="> enter qualia frequency..."
-          onkeydown="handleInput(event)"
-        />
+        <input id="input" placeholder="> enter qualia frequency..." onkeydown="handleInput(event)" />
         <button onclick="sendFromButton()">Send</button>
       </div>
     </div>
-
     <p class="footer-note">
       This prototype uses interaction rhythm as a software proxy for nervous-system state.
       It is not a diagnosis tool. It is a human-return interface.
@@ -454,14 +217,12 @@ const logEl = document.getElementById("log");
 const statusEl = document.getElementById("status");
 const homeModeEl = document.getElementById("homeMode");
 
-let w;
-let h;
+let w, h;
 let particles = [];
 let intensity = 0.5;
 let currentState = "baseline";
 let currentMode = "427Hz BASELINE";
 let currentMusic = "427Hz";
-
 let lastScroll = window.scrollY;
 let lastTime = Date.now();
 let clicks = 0;
@@ -477,194 +238,121 @@ let metrics = {
 };
 
 const stateMap = {
-  overloaded: {
-    mode: "HYPERPOP PEAK TRAVERSAL",
-    music: "Hyperpop",
-    intensity: 0.95,
-    message: "Energy is valid. Let it peak, then release.",
-    glow: 0.95
-  },
-  numb: {
-    mode: "BREAKBEAT RE-ENTRY",
-    music: "Breakbeats",
-    intensity: 0.82,
-    message: "Body first. Meaning later.",
-    glow: 0.75
-  },
-  anxious: {
-    mode: "AMBIENT TECHNO STABILIZATION",
-    music: "Ambient Techno",
-    intensity: 0.48,
-    message: "Space becomes rhythm. Rhythm becomes safety.",
-    glow: 0.45
-  },
-  focus: {
-    mode: "427Hz FOCUS LOCK",
-    music: "427Hz",
-    intensity: 0.34,
-    message: "Attention anchored. Drift reduced.",
-    glow: 0.32
-  },
-  void: {
-    mode: "DARKWAVE SHADOW INTEGRATION",
-    music: "Darkwave",
-    intensity: 0.64,
-    message: "Descend with agency. Darkness is not the enemy.",
-    glow: 0.58
-  },
-  baseline: {
-    mode: "427Hz BASELINE",
-    music: "427Hz",
-    intensity: 0.5,
-    message: "Local resonance established.",
-    glow: 0.5
-  }
+  overloaded:{mode:"HYPERPOP PEAK TRAVERSAL",music:"Hyperpop",intensity:.95,message:"Energy is valid. Let it peak, then release.",glow:.95},
+  numb:{mode:"BREAKBEAT RE-ENTRY",music:"Breakbeats",intensity:.82,message:"Body first. Meaning later.",glow:.75},
+  anxious:{mode:"AMBIENT TECHNO STABILIZATION",music:"Ambient Techno",intensity:.48,message:"Space becomes rhythm. Rhythm becomes safety.",glow:.45},
+  focus:{mode:"427Hz FOCUS LOCK",music:"427Hz",intensity:.34,message:"Attention anchored. Drift reduced.",glow:.32},
+  void:{mode:"DARKWAVE SHADOW INTEGRATION",music:"Darkwave",intensity:.64,message:"Descend with agency. Darkness is not the enemy.",glow:.58},
+  baseline:{mode:"427Hz BASELINE",music:"427Hz",intensity:.5,message:"Local resonance established.",glow:.5}
 };
 
-function resize() {
+function resize(){
   w = canvas.width = innerWidth;
   h = canvas.height = innerHeight;
 }
-
 resize();
 addEventListener("resize", resize);
 
-function createParticles() {
+function createParticles(){
   particles = [];
   const count = Math.min(180, Math.floor((innerWidth * innerHeight) / 9000));
-
-  for (let i = 0; i < count; i++) {
+  for(let i=0;i<count;i++){
     particles.push({
-      x: Math.random() * innerWidth,
-      y: Math.random() * innerHeight,
-      r: Math.random() * 2 + 0.4,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35
+      x:Math.random()*innerWidth,
+      y:Math.random()*innerHeight,
+      r:Math.random()*2+.4,
+      vx:(Math.random()-.5)*.35,
+      vy:(Math.random()-.5)*.35
     });
   }
 }
-
 createParticles();
 
-function draw() {
-  ctx.clearRect(0, 0, w, h);
-
-  for (const p of particles) {
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  for(const p of particles){
     p.x += p.vx * (1 + intensity * 3);
     p.y += p.vy * (1 + intensity * 3);
-
-    if (p.x < 0) p.x = w;
-    if (p.x > w) p.x = 0;
-    if (p.y < 0) p.y = h;
-    if (p.y > h) p.y = 0;
-
+    if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r + intensity * 0.9, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(220,210,255,${0.22 + intensity * 0.36})`;
+    ctx.arc(p.x,p.y,p.r + intensity*.9,0,Math.PI*2);
+    ctx.fillStyle = `rgba(220,210,255,${.22 + intensity*.36})`;
     ctx.fill();
   }
-
   requestAnimationFrame(draw);
 }
-
 draw();
 
-function enterSystem() {
+function enterSystem(){
   document.getElementById("enter").classList.add("hide");
   setState("baseline", false);
 }
 
-function normalizeState(state) {
-  const allowed = ["baseline", "overloaded", "numb", "anxious", "focus", "void"];
+function normalizeState(state){
+  const allowed = ["baseline","overloaded","numb","anxious","focus","void"];
   return allowed.includes(state) ? state : "baseline";
 }
 
-function setState(state, writeLog = true) {
+function setState(state, writeLog = true){
   currentState = normalizeState(state);
-
   const config = stateMap[currentState];
   currentMode = config.mode;
   currentMusic = config.music;
   intensity = config.intensity;
-
   bgGlow.style.opacity = String(config.glow);
 
-  statusEl.innerHTML = `
-    STATE: ${currentState.toUpperCase()}<br>
-    MODE: ${currentMode}<br>
-    MUSIC: ${currentMusic}
-  `;
-
+  statusEl.innerHTML = `STATE: ${currentState.toUpperCase()}<br>MODE: ${currentMode}<br>MUSIC: ${currentMusic}`;
   homeModeEl.textContent = `CURRENT MODE: ${currentMode}`;
 
-  if (writeLog) {
+  if(writeLog){
     appendLog(`[SYSTEM] ${currentMode}\n[AiQ愛<3] ${config.message}`);
   }
 }
 
-function applyAIQPayload(data) {
-  if (!data) return;
-
-  if (data.suggestedState) {
-    currentState = normalizeState(data.suggestedState);
+function applyAIQPayload(data){
+  if(!data) return;
+  if(data.suggestedState) currentState = normalizeState(data.suggestedState);
+  if(typeof data.visualIntensity === "number"){
+    intensity = Math.max(.1, Math.min(1, data.visualIntensity));
   }
-
-  if (typeof data.visualIntensity === "number") {
-    intensity = Math.max(0.1, Math.min(1, data.visualIntensity));
-  } else {
-    intensity = stateMap[currentState].intensity;
-  }
-
   currentMode = data.suggestedMode || stateMap[currentState].mode;
   currentMusic = data.musicCue || stateMap[currentState].music;
-
-  statusEl.innerHTML = `
-    STATE: ${currentState.toUpperCase()}<br>
-    MODE: ${currentMode}<br>
-    MUSIC: ${currentMusic}
-  `;
-
+  statusEl.innerHTML = `STATE: ${currentState.toUpperCase()}<br>MODE: ${currentMode}<br>MUSIC: ${currentMusic}`;
   homeModeEl.textContent = `CURRENT MODE: ${currentMode}`;
-  bgGlow.style.opacity = String(Math.max(0.25, Math.min(1, intensity)));
+  bgGlow.style.opacity = String(Math.max(.25, Math.min(1, intensity)));
 }
 
-function appendLog(text) {
+function appendLog(text){
   logEl.textContent += "\n\n" + text;
   logEl.scrollTop = logEl.scrollHeight;
 }
 
-function pushHistory(role, content) {
+function pushHistory(role, content){
   conversationHistory.push({ role, content });
-
-  if (conversationHistory.length > 12) {
-    conversationHistory = conversationHistory.slice(-12);
-  }
+  if(conversationHistory.length > 12) conversationHistory = conversationHistory.slice(-12);
 }
 
-function calculateInputTempo(value) {
-  if (!typingStart) return 0;
+function calculateInputTempo(value){
+  if(!typingStart) return 0;
   const seconds = Math.max((Date.now() - typingStart) / 1000, 1);
   return value.length / seconds;
 }
 
-async function sendMessage(input) {
+async function sendMessage(input){
   const message = input.trim();
-  if (!message) return;
+  if(!message) return;
 
   appendLog("> " + message);
   pushHistory("user", message);
-
   appendLog("[AiQ愛<3] thinking through rhythm...");
 
   metrics.dwellSeconds = Math.round((Date.now() - dwellStart) / 1000);
   metrics.inputTempo = calculateInputTempo(message);
 
-  try {
+  try{
     const response = await fetch(API_ENDPOINT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
         state: currentState,
@@ -673,82 +361,75 @@ async function sendMessage(input) {
       })
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Backend error");
+    let data;
+    try {
+      data = await response.json();
+    } catch(jsonError) {
+      const text = await response.text();
+      appendLog("[RAW BACKEND TEXT] " + text);
+      return;
     }
 
-    const reply = data.reply || "I received you. Return to your signal first.";
+    if(data.reply){
+      appendLog("[AiQ愛<3] " + data.reply);
+      pushHistory("assistant", data.reply);
+      applyAIQPayload(data);
+    } else if(data.error){
+      appendLog("[BACKEND ERROR] " + data.error);
+    } else {
+      appendLog("[BACKEND RAW] " + JSON.stringify(data));
+    }
 
-    appendLog("[AiQ愛<3] " + reply);
-    pushHistory("assistant", reply);
-    applyAIQPayload(data);
-
-  } catch (error) {
-    appendLog("[SYSTEM] connection failed. Backend reached issue. Check Vercel deployment and API key.");
+  } catch(error){
+    appendLog("[FRONTEND ERROR] " + error.message);
     console.error(error);
   }
 
   typingStart = null;
 }
 
-function handleInput(event) {
+function handleInput(event){
   const input = event.target;
-
-  if (!typingStart && input.value.length > 0) {
-    typingStart = Date.now();
-  }
-
-  if (event.key !== "Enter") return;
-
+  if(!typingStart && input.value.length > 0) typingStart = Date.now();
+  if(event.key !== "Enter") return;
   const value = input.value;
   input.value = "";
   sendMessage(value);
 }
 
-function sendFromButton() {
+function sendFromButton(){
   const input = document.getElementById("input");
   const value = input.value;
   input.value = "";
   sendMessage(value);
 }
 
-addEventListener("click", () => {
+addEventListener("click", ()=>{
   clicks++;
   metrics.clickDensity = clicks;
-
-  if (clicks > 8 && currentState !== "anxious") {
-    setState("anxious");
-  }
-
-  setTimeout(() => {
+  if(clicks > 8 && currentState !== "anxious") setState("anxious");
+  setTimeout(()=>{
     clicks = Math.max(0, clicks - 1);
     metrics.clickDensity = clicks;
-  }, 1200);
+  },1200);
 });
 
-addEventListener("scroll", () => {
+addEventListener("scroll", ()=>{
   const now = Date.now();
   const dy = Math.abs(scrollY - lastScroll);
   const dt = now - lastTime;
   const velocity = dy / Math.max(dt, 1);
-
   metrics.scrollVelocity = Number(velocity.toFixed(3));
-
   lastScroll = scrollY;
   lastTime = now;
 
-  if (velocity > 3.8 && currentState !== "overloaded") {
-    setState("overloaded");
-  } else if (velocity < 0.03 && scrollY > 200 && currentState !== "focus") {
-    setState("focus");
-  }
+  if(velocity > 3.8 && currentState !== "overloaded") setState("overloaded");
+  else if(velocity < .03 && scrollY > 200 && currentState !== "focus") setState("focus");
 });
 
-setInterval(() => {
+setInterval(()=>{
   metrics.dwellSeconds = Math.round((Date.now() - dwellStart) / 1000);
-}, 1000);
+},1000);
 </script>
 </body>
 </html>
