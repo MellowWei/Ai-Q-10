@@ -445,15 +445,6 @@ input:focus {
 </div>
 
 <script>
-/*
-  AiQ愛<3 frontend body.
-  Important:
-  - When deployed on Vercel, API_ENDPOINT can stay "/api/chat".
-  - When keeping frontend on GitHub Pages and backend on Vercel,
-    replace API_ENDPOINT with your Vercel endpoint, for example:
-    "https://your-vercel-project.vercel.app/api/chat"
-*/
-
 const API_ENDPOINT = "https://ai-q-3.vercel.app/api/chat";
 
 const canvas = document.getElementById("field");
@@ -477,7 +468,6 @@ let clicks = 0;
 let dwellStart = Date.now();
 let conversationHistory = [];
 let typingStart = null;
-let lastInputLength = 0;
 
 let metrics = {
   scrollVelocity: 0,
@@ -616,8 +606,7 @@ function applyAIQPayload(data) {
   if (!data) return;
 
   if (data.suggestedState) {
-    const nextState = normalizeState(data.suggestedState);
-    currentState = nextState;
+    currentState = normalizeState(data.suggestedState);
   }
 
   if (typeof data.visualIntensity === "number") {
@@ -654,7 +643,6 @@ function pushHistory(role, content) {
 
 function calculateInputTempo(value) {
   if (!typingStart) return 0;
-
   const seconds = Math.max((Date.now() - typingStart) / 1000, 1);
   return value.length / seconds;
 }
@@ -696,13 +684,13 @@ async function sendMessage(input) {
     appendLog("[AiQ愛<3] " + reply);
     pushHistory("assistant", reply);
     applyAIQPayload(data);
+
   } catch (error) {
-    appendLog("[SYSTEM] connection failed. If this is on GitHub Pages, deploy the Node API on Vercel and set API_ENDPOINT to the Vercel /api/chat URL.");
+    appendLog("[SYSTEM] connection failed. Backend reached issue. Check Vercel deployment and API key.");
     console.error(error);
   }
 
   typingStart = null;
-  lastInputLength = 0;
 }
 
 function handleInput(event) {
@@ -711,8 +699,6 @@ function handleInput(event) {
   if (!typingStart && input.value.length > 0) {
     typingStart = Date.now();
   }
-
-  lastInputLength = input.value.length;
 
   if (event.key !== "Enter") return;
 
