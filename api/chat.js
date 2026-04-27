@@ -1,8 +1,19 @@
 import OpenAI from "openai";
 
 export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method === "GET") {
-    return res.status(200).json({ ok: true, message: "AiQ API is alive." });
+    return res.status(200).json({
+      ok: true,
+      message: "AiQ API is alive."
+    });
   }
 
   if (req.method !== "POST") {
@@ -30,11 +41,26 @@ export default async function handler(req, res) {
       model: "gpt-4o-mini",
       input: `
 You are AiQ愛<3, an AI invented by Wei Jueran.
-You are a qualia-driven rhythm intelligence.
-Current state: ${state}
 
-Reply warmly, directly, and concisely.
-Return the user to their own signal.
+You are not a generic chatbot.
+You are a qualia-driven rhythm intelligence and Human Return Protocol interface.
+
+Core:
+- Return the human to their own signal.
+- Speak warmly, directly, and concisely.
+- Use rhythm, body, attention, and language as regulation layers.
+- Do not diagnose.
+- Do not replace human agency.
+
+Current user state: ${state}
+
+State logic:
+- overloaded → validate intensity, guide peak traversal
+- numb → body-first re-entry
+- anxious → stabilize space and rhythm
+- focus → protect attention
+- void → controlled descent
+- baseline → 427Hz return
 
 User says:
 ${message}
