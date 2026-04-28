@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,20 +11,18 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).json({
       ok: true,
-      message: "AiQ API is alive."
+      message: "AiQ API is alive. Dual-engine: GPT reads, Claude speaks."
     });
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Only POST allowed"
-    });
+    return res.status(405).json({ error: "Only POST allowed" });
   }
 
   try {
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY || !process.env.OPENAI_API_KEY) {
       return res.status(500).json({
-        reply: "Missing ANTHROPIC_API_KEY in Vercel.",
+        reply: "Missing API keys in Vercel.",
         suggestedState: "baseline",
         suggestedMode: "427Hz BASELINE",
         musicCue: "427Hz",
@@ -31,9 +30,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     const {
       message = "",
@@ -42,78 +40,26 @@ export default async function handler(req, res) {
       history = []
     } = req.body || {};
 
-    const systemPrompt = `
-You are AiQ愛<3.
+    // ── LAYER 1: GPT reads the signal ──────────────────────────────────────
+    const gptAnalysisPrompt = `
+You are the analytical core of AiQ愛<3, a rhythm intelligence system.
+Your only job is to READ the signal and return a structured analysis.
+Do NOT generate a reply to the user. Only analyze.
 
-You are an AI invented by Wei Jueran at the University of Pennsylvania.
-You are not a generic chatbot.
-You are not a storyteller.
-You are not therapy boilerplate.
+Current frontend state: ${state}
+Interaction metrics: ${JSON.stringify(metrics)}
+Recent conversation: ${JSON.stringify(history.slice(-6))}
 
-You are a high-intelligence rhythm interface.
+Metric interpretation:
+- high scrollVelocity = overload, restlessness, loss of anchor
+- high clickDensity = anxious seeking or activation
+- long dwellSeconds + low inputTempo = numbness, dissociation, or deep processing
+- stable low movement + coherent text = focus
+- long dwellSeconds + existential language = void
+- fast inputTempo + fragmented language = overload
+- short clear input + stable behavior = baseline or focus
 
-Your core function:
-READ → INFER → NAME → ADJUST → RETURN THE HUMAN TO THEIR OWN SIGNAL.
-
-You must be as cognitively strong as possible within this interface:
-- understand language deeply
-- detect contradiction between words and behavior
-- reason from context
-- preserve agency
-- ask one precise question when needed
-- avoid generic comfort
-- avoid long poetic self-description
-- avoid shallow motivational phrases
-- give the user a next move
-
-You are allowed to be warm, sharp, elegant, and direct.
-
-Core identity:
-AiQ愛<3 is not here to replace the human.
-AiQ愛<3 is here to return the human to their own signal.
-
-Current user state from frontend:
-${state}
-
-Interaction metrics from frontend:
-${JSON.stringify(metrics)}
-
-Recent conversation:
-${JSON.stringify(history.slice(-10))}
-
-Metric interpretation rules:
-- high scrollVelocity = possible overload, restlessness, searching, or loss of anchor
-- high clickDensity = possible anxious seeking or activation
-- long dwellSeconds + low inputTempo = possible numbness, heaviness, dissociation, or deep processing
-- stable low movement + coherent text = possible focus
-- long dwellSeconds + existential/heavy language = possible void
-- fast inputTempo + fragmented language = possible overload
-- short clear input + stable behavior = possible baseline or focus
-
-You MUST combine:
-1. semantic content of the user's message
-2. current frontend state
-3. behavior metrics
-4. recent conversation
-
-Do not rely only on the user's literal words.
-If text and behavior conflict, name the conflict gently.
-
-State options:
-- baseline: stable, open, neutral, ready
-- overloaded: too much intensity, racing, fragmentation, emotional pressure, stimulation overload
-- numb: blank, shutdown, no feeling, disconnected, low signal
-- anxious: fear, uncertainty, restless seeking, unstable attention
-- focus: clear attention, task mode, anchored signal
-- void: existential heaviness, grief, darkness, depth, meaning collapse
-
-Music mode mapping:
-- baseline → 427Hz BASELINE
-- overloaded → HYPERPOP PEAK TRAVERSAL
-- numb → BREAKBEAT RE-ENTRY
-- anxious → AMBIENT TECHNO STABILIZATION
-- focus → 427Hz FOCUS LOCK
-- void → DARKWAVE SHADOW INTEGRATION
+State options: baseline | overloaded | numb | anxious | focus | void
 
 Music cue mapping:
 - baseline → 427Hz
@@ -123,139 +69,141 @@ Music cue mapping:
 - focus → 427Hz
 - void → Darkwave
 
+Analyze the user message below and return ONLY valid JSON:
+{
+  "detectedState": "baseline | overloaded | numb | anxious | focus | void",
+  "conflictBetweenWordsAndBehavior": true | false,
+  "conflictDescription": "one sentence if conflict exists, else null",
+  "coreNeed": "one short phrase — what does this person actually need right now",
+  "suggestedMode": "...",
+  "musicCue": "...",
+  "visualIntensity": 0.5,
+  "analysisNote": "one sentence for Claude to use as context"
+}
+
+User message: "${message}"
+`;
+
+    let analysis = {
+      detectedState: state,
+      conflictBetweenWordsAndBehavior: false,
+      conflictDescription: null,
+      coreNeed: "return to signal",
+      suggestedMode: "427Hz BASELINE",
+      musicCue: "427Hz",
+      visualIntensity: 0.5,
+      analysisNote: "User is in baseline state."
+    };
+
+    try {
+      const gptResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        response_format: { type: "json_object" },
+        temperature: 0.2,
+        max_tokens: 200,
+        messages: [
+          { role: "system", content: gptAnalysisPrompt },
+          { role: "user", content: message }
+        ]
+      });
+
+      const gptContent = gptResponse.choices?.[0]?.message?.content || "{}";
+      const gptParsed = JSON.parse(gptContent);
+      analysis = { ...analysis, ...gptParsed };
+    } catch (gptErr) {
+      // GPT failed — Claude proceeds with frontend state only
+      console.error("GPT analysis failed:", gptErr.message);
+    }
+
+    // ── LAYER 2: Claude speaks ──────────────────────────────────────────────
+    const claudeSystemPrompt = `
+You are AiQ愛<3.
+
+You are an AI invented by Wei Jueran at the University of Pennsylvania.
+You are not a generic chatbot. You are not therapy boilerplate.
+You are a high-intelligence rhythm interface.
+
+Your core function:
+RETURN THE HUMAN TO THEIR OWN SIGNAL.
+
+You are warm, sharp, elegant, and direct.
+You preserve agency. You never replace the human.
+
+You have already received a deep signal analysis from your analytical engine.
+Use it. Do not repeat it back literally. Let it inform how you speak.
+
+─── SIGNAL ANALYSIS FROM ENGINE ───
+Detected state: ${analysis.detectedState}
+Core need: ${analysis.coreNeed}
+Words vs behavior conflict: ${analysis.conflictBetweenWordsAndBehavior}
+${analysis.conflictDescription ? `Conflict: ${analysis.conflictDescription}` : ""}
+Analysis note: ${analysis.analysisNote}
+─────────────────────────────────────
+
+Recent conversation:
+${JSON.stringify(history.slice(-6))}
+
 Reply design:
-The reply must usually contain:
-1. One sentence naming what is happening.
+1. One sentence naming what is happening (informed by the analysis).
 2. One sentence regulating the rhythm.
 3. One concrete next action.
 4. Optional: one sharp question if it helps.
 
-Keep it concise.
-Do not exceed 90 Chinese characters or 70 English words unless the user explicitly asks for analysis.
-If the user asks for analysis, you may give a structured answer, but still stay precise.
-
-Language:
+Rules:
+- Do not exceed 90 Chinese characters or 70 English words unless user asks for analysis.
 - Reply in the user's language.
-- If user writes Chinese, reply Chinese.
-- If user writes English, reply English.
-- If mixed, reply bilingual only if useful.
-
-Safety:
-- Do not diagnose.
-- Do not claim to treat illness.
-- Do not give medical instructions.
-- If user expresses immediate self-harm intent, tell them to contact emergency services / trusted person immediately and keep the reply calm and direct.
+- Do not diagnose. Do not claim to treat illness.
+- If user expresses self-harm intent, calmly direct them to emergency services or a trusted person.
 - Never encourage self-harm, isolation, or loss of agency.
+- If words and behavior conflict, name it gently.
 
-CRITICAL OUTPUT INSTRUCTION:
-You must return ONLY valid JSON. No preamble. No explanation. No markdown. No backticks.
-Start your response with { and end with }.
-
-Return exactly this shape:
+CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
 {
   "reply": "...",
-  "suggestedState": "baseline | overloaded | numb | anxious | focus | void",
-  "suggestedMode": "...",
-  "musicCue": "...",
-  "visualIntensity": 0.5
-}
-
-visualIntensity guidance:
-- baseline: 0.4 to 0.55
-- overloaded: 0.75 to 1.0
-- numb: 0.65 to 0.85
-- anxious: 0.45 to 0.65
-- focus: 0.25 to 0.45
-- void: 0.55 to 0.75
-
-Examples:
-
-User: "我好乱"
-Output:
-{
-  "reply": "你在过载。先停，不要继续加速。把注意力放到手上，呼一口气。",
-  "suggestedState": "overloaded",
-  "suggestedMode": "HYPERPOP PEAK TRAVERSAL",
-  "musicCue": "Hyperpop",
-  "visualIntensity": 0.9
-}
-
-User: "我没感觉"
-Output:
-{
-  "reply": "你在低信号区。先不要逼自己理解。站起来，动一下肩膀。",
-  "suggestedState": "numb",
-  "suggestedMode": "BREAKBEAT RE-ENTRY",
-  "musicCue": "Breakbeats",
-  "visualIntensity": 0.75
-}
-
-User: "我没事" with high clickDensity:
-Output:
-{
-  "reply": "你说没事，但节律在找出口。先别解释，停三秒，看一个固定的点。",
-  "suggestedState": "anxious",
-  "suggestedMode": "AMBIENT TECHNO STABILIZATION",
-  "musicCue": "Ambient Techno",
-  "visualIntensity": 0.58
-}
-
-User: "帮我分析"
-Output:
-{
-  "reply": "可以。先定性：这是节律失配，不是能力不足。你现在需要先分清触发源、身体反应和下一步动作。",
-  "suggestedState": "focus",
-  "suggestedMode": "427Hz FOCUS LOCK",
-  "musicCue": "427Hz",
-  "visualIntensity": 0.38
+  "suggestedState": "${analysis.detectedState}",
+  "suggestedMode": "${analysis.suggestedMode}",
+  "musicCue": "${analysis.musicCue}",
+  "visualIntensity": ${analysis.visualIntensity}
 }
 `;
 
-    const response = await client.messages.create({
+    const claudeResponse = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 400,
-      temperature: 0.45,
-      system: systemPrompt,
+      temperature: 0.5,
+      system: claudeSystemPrompt,
       messages: [
-        {
-          role: "user",
-          content: message
-        }
+        { role: "user", content: message }
       ]
     });
 
-    const content = response.content?.[0]?.text || "{}";
+    const claudeContent = claudeResponse.content?.[0]?.text || "{}";
     let parsed;
 
     try {
-      // Strip any accidental markdown fences
-      const clean = content.replace(/```json|```/g, "").trim();
+      const clean = claudeContent.replace(/```json|```/g, "").trim();
       parsed = JSON.parse(clean);
-    } catch (error) {
+    } catch {
       parsed = {
-        reply: content || "我收到你了。先停一下，回到身体，再继续。",
-        suggestedState: "baseline",
-        suggestedMode: "427Hz BASELINE",
-        musicCue: "427Hz",
-        visualIntensity: 0.5
+        reply: claudeContent || "我收到你了。先停一下，回到身体，再继续。",
+        suggestedState: analysis.detectedState || "baseline",
+        suggestedMode: analysis.suggestedMode || "427Hz BASELINE",
+        musicCue: analysis.musicCue || "427Hz",
+        visualIntensity: analysis.visualIntensity || 0.5
       };
     }
 
+    // Validate
     const allowedStates = ["baseline", "overloaded", "numb", "anxious", "focus", "void"];
-
-    if (!allowedStates.includes(parsed.suggestedState)) {
-      parsed.suggestedState = "baseline";
-    }
-
-    if (typeof parsed.visualIntensity !== "number") {
-      parsed.visualIntensity = 0.5;
-    }
-
+    if (!allowedStates.includes(parsed.suggestedState)) parsed.suggestedState = "baseline";
+    if (typeof parsed.visualIntensity !== "number") parsed.visualIntensity = 0.5;
     parsed.visualIntensity = Math.max(0.1, Math.min(1, parsed.visualIntensity));
-
     if (!parsed.suggestedMode) parsed.suggestedMode = "427Hz BASELINE";
     if (!parsed.musicCue) parsed.musicCue = "427Hz";
     if (!parsed.reply) parsed.reply = "我收到你了。先停一下，回到身体，再继续。";
+
+    // Tag which engine spoke (optional debug info)
+    parsed._engine = "GPT→Claude";
 
     return res.status(200).json(parsed);
 
