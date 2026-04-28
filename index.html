@@ -228,6 +228,9 @@ let audioCtx=null, masterGain=null, toneOsc=null, toneGain=null;
 let pulseOsc=null, pulseGain=null, lfo=null, lfoGain=null;
 let audioEnabled=false, currentAudioMode="427Hz";
 
+// ── FLAG: only true after user clicks ENTER button ──
+let userEnteredSystem = false;
+
 const stateMap={
   overloaded:{mode:"HYPERPOP PEAK TRAVERSAL",music:"Hyperpop",intensity:.95,message:"Energy is valid. Let it peak, then release.",glow:1},
   numb:{mode:"BREAKBEAT RE-ENTRY",music:"Breakbeats",intensity:.78,message:"Body first. Meaning later.",glow:.75},
@@ -312,6 +315,8 @@ function initAudio(){
 }
 
 function ensureAudioOn(){
+  // Only activate audio if user has explicitly entered the system
+  if(!userEnteredSystem) return;
   initAudio();
   audioEnabled=true;
   if(audioCtx.state==="suspended") audioCtx.resume();
@@ -353,6 +358,8 @@ function setAudioMode(musicCue){
 }
 
 function enterSystem(){
+  // User explicitly consented to audio
+  userEnteredSystem = true;
   document.getElementById("enter").classList.add("hide");
   ensureAudioOn();
   setState("baseline",false);
@@ -364,7 +371,9 @@ function normalizeState(state){
 }
 
 function setState(state,writeLog=true){
-  ensureAudioOn();
+  // Only trigger audio if user has entered the system
+  if(userEnteredSystem) ensureAudioOn();
+
   currentState=normalizeState(state);
   const config=stateMap[currentState];
 
@@ -501,7 +510,7 @@ addEventListener("click",()=>{
   clicks++;
   metrics.clickDensity=clicks;
 
-  if(clicks>8 && currentState!=="anxious"){
+  if(clicks>8 && currentState!=="anxious" && userEnteredSystem){
     setState("anxious");
   }
 
@@ -522,10 +531,13 @@ addEventListener("scroll",()=>{
   lastScroll=scrollY;
   lastTime=now;
 
-  if(velocity>3.8 && currentState!=="overloaded"){
-    setState("overloaded");
-  }else if(velocity<.03 && scrollY>200 && currentState!=="focus"){
-    setState("focus");
+  // Only trigger state changes after user has entered the system
+  if(userEnteredSystem){
+    if(velocity>3.8 && currentState!=="overloaded"){
+      setState("overloaded");
+    }else if(velocity<.03 && scrollY>200 && currentState!=="focus"){
+      setState("focus");
+    }
   }
 });
 
