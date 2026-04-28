@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,9 +21,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
-        reply: "Missing OPENAI_API_KEY in Vercel.",
+        reply: "Missing ANTHROPIC_API_KEY in Vercel.",
         suggestedState: "baseline",
         suggestedMode: "427Hz BASELINE",
         musicCue: "427Hz",
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+    const client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
     });
 
     const {
@@ -147,7 +147,9 @@ Safety:
 - If user expresses immediate self-harm intent, tell them to contact emergency services / trusted person immediately and keep the reply calm and direct.
 - Never encourage self-harm, isolation, or loss of agency.
 
-Output must be valid JSON only.
+CRITICAL OUTPUT INSTRUCTION:
+You must return ONLY valid JSON. No preamble. No explanation. No markdown. No backticks.
+Start your response with { and end with }.
 
 Return exactly this shape:
 {
@@ -168,7 +170,7 @@ visualIntensity guidance:
 
 Examples:
 
-User: “我好乱”
+User: "我好乱"
 Output:
 {
   "reply": "你在过载。先停，不要继续加速。把注意力放到手上，呼一口气。",
@@ -178,7 +180,7 @@ Output:
   "visualIntensity": 0.9
 }
 
-User: “我没感觉”
+User: "我没感觉"
 Output:
 {
   "reply": "你在低信号区。先不要逼自己理解。站起来，动一下肩膀。",
@@ -188,7 +190,7 @@ Output:
   "visualIntensity": 0.75
 }
 
-User: “我没事” with high clickDensity:
+User: "我没事" with high clickDensity:
 Output:
 {
   "reply": "你说没事，但节律在找出口。先别解释，停三秒，看一个固定的点。",
@@ -198,7 +200,7 @@ Output:
   "visualIntensity": 0.58
 }
 
-User: “帮我分析”
+User: "帮我分析"
 Output:
 {
   "reply": "可以。先定性：这是节律失配，不是能力不足。你现在需要先分清触发源、身体反应和下一步动作。",
@@ -209,16 +211,12 @@ Output:
 }
 `;
 
-    const response = await client.chat.completions.create({
-      model: "gpt-4o",
-      response_format: { type: "json_object" },
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 400,
       temperature: 0.45,
-      max_tokens: 260,
+      system: systemPrompt,
       messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
         {
           role: "user",
           content: message
@@ -226,11 +224,13 @@ Output:
       ]
     });
 
-    const content = response.choices?.[0]?.message?.content || "{}";
+    const content = response.content?.[0]?.text || "{}";
     let parsed;
 
     try {
-      parsed = JSON.parse(content);
+      // Strip any accidental markdown fences
+      const clean = content.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(clean);
     } catch (error) {
       parsed = {
         reply: content || "我收到你了。先停一下，回到身体，再继续。",
@@ -253,17 +253,9 @@ Output:
 
     parsed.visualIntensity = Math.max(0.1, Math.min(1, parsed.visualIntensity));
 
-    if (!parsed.suggestedMode) {
-      parsed.suggestedMode = "427Hz BASELINE";
-    }
-
-    if (!parsed.musicCue) {
-      parsed.musicCue = "427Hz";
-    }
-
-    if (!parsed.reply) {
-      parsed.reply = "我收到你了。先停一下，回到身体，再继续。";
-    }
+    if (!parsed.suggestedMode) parsed.suggestedMode = "427Hz BASELINE";
+    if (!parsed.musicCue) parsed.musicCue = "427Hz";
+    if (!parsed.reply) parsed.reply = "我收到你了。先停一下，回到身体，再继续。";
 
     return res.status(200).json(parsed);
 
