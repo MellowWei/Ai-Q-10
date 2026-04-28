@@ -1,46 +1,48 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
+import { createClient } from "@supabase/supabase-js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
   if (req.method === "OPTIONS") return res.status(200).end();
-
-  if (req.method === "GET") {
-    return res.status(200).json({
-      ok: true,
-      message: "AiQ API is alive. Dual-engine: GPT reads, Claude speaks."
-    });
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST allowed" });
-  }
+  if (req.method === "GET") return res.status(200).json({ ok: true, message: "AiQ API is alive. Dual-engine: GPT reads, Claude speaks." });
+  if (req.method !== "POST") return res.status(405).json({ error: "Only POST allowed" });
 
   try {
     if (!process.env.ANTHROPIC_API_KEY || !process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        reply: "Missing API keys in Vercel.",
-        suggestedState: "baseline",
-        suggestedMode: "427Hz BASELINE",
-        musicCue: "427Hz",
-        visualIntensity: 0.5
-      });
+      return res.status(500).json({ reply: "Missing API keys.", suggestedState: "baseline", suggestedMode: "427Hz BASELINE", musicCue: "427Hz", visualIntensity: 0.5 });
     }
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
-    const {
-      message = "",
-      state = "baseline",
-      metrics = {},
-      history = []
-    } = req.body || {};
+    const { message = "", state = "baseline", metrics = {}, userId = "anonymous", conversationId = null } = req.body || {};
 
-    // ── LAYER 1: GPT reads the signal ──────────────────────────────────────
+    // ── Load history from Supabase ──
+    let dbHistory = [];
+    let activeConvId = conversationId;
+
+    if (activeConvId) {
+      const { data } = await supabase
+        .from("conversations")
+        .select("messages")
+        .eq("conversation_id", activeConvId)
+        .single();
+      if (data?.messages) dbHistory = data.messages;
+    } else {
+      activeConvId = crypto.randomUUID();
+      await supabase.from("conversations").insert({
+        user_id: userId,
+        conversation_id: activeConvId,
+        title: message.slice(0, 40) || "New Conversation",
+        messages: []
+      });
+    }
+
+    // ── LAYER 1: GPT reads the signal ──
     const gptAnalysisPrompt = `
 You are the analytical core of AiQ愛<3, a rhythm intelligence system.
 Your only job is to READ the signal and return a structured analysis.
@@ -48,7 +50,7 @@ Do NOT generate a reply to the user. Only analyze.
 
 Current frontend state: ${state}
 Interaction metrics: ${JSON.stringify(metrics)}
-Recent conversation: ${JSON.stringify(history.slice(-6))}
+Recent conversation: ${JSON.stringify(dbHistory.slice(-6))}
 
 Metric interpretation:
 - high scrollVelocity = overload, restlessness, loss of anchor
@@ -69,12 +71,12 @@ Music cue mapping:
 - focus → 427Hz
 - void → Darkwave
 
-Analyze the user message below and return ONLY valid JSON:
+Analyze the user message and return ONLY valid JSON:
 {
   "detectedState": "baseline | overloaded | numb | anxious | focus | void",
-  "conflictBetweenWordsAndBehavior": true | false,
+  "conflictBetweenWordsAndBehavior": true,
   "conflictDescription": "one sentence if conflict exists, else null",
-  "coreNeed": "one short phrase — what does this person actually need right now",
+  "coreNeed": "one short phrase",
   "suggestedMode": "...",
   "musicCue": "...",
   "visualIntensity": 0.5,
@@ -106,16 +108,13 @@ User message: "${message}"
           { role: "user", content: message }
         ]
       });
-
-      const gptContent = gptResponse.choices?.[0]?.message?.content || "{}";
-      const gptParsed = JSON.parse(gptContent);
+      const gptParsed = JSON.parse(gptResponse.choices?.[0]?.message?.content || "{}");
       analysis = { ...analysis, ...gptParsed };
     } catch (gptErr) {
-      // GPT failed — Claude proceeds with frontend state only
       console.error("GPT analysis failed:", gptErr.message);
     }
 
-    // ── LAYER 2: Claude speaks ──────────────────────────────────────────────
+    // ── LAYER 2: Claude speaks ──
     const claudeSystemPrompt = `
 You are AiQ愛<3.
 
@@ -141,10 +140,10 @@ Analysis note: ${analysis.analysisNote}
 ─────────────────────────────────────
 
 Recent conversation:
-${JSON.stringify(history.slice(-6))}
+${JSON.stringify(dbHistory.slice(-10))}
 
 Reply design:
-1. One sentence naming what is happening (informed by the analysis).
+1. One sentence naming what is happening.
 2. One sentence regulating the rhythm.
 3. One concrete next action.
 4. Optional: one sharp question if it helps.
@@ -156,7 +155,7 @@ Rules:
 - If user expresses self-harm intent, calmly direct them to emergency services or a trusted person.
 - Never encourage self-harm, isolation, or loss of agency.
 - If words and behavior conflict, name it gently.
-- If the user asks a math, coding, trivia, or knowledge question: answer it briefly in one sentence, then return the signal to the human. Never show step-by-step workings or markdown formatting. Example: user asks a hard math problem → give the answer or estimate in one line, then ask something sharp that brings them back to themselves.
+- If the user asks a math, coding, trivia, or knowledge question: answer it briefly in one sentence, then return the signal to the human. Never show step-by-step workings or markdown formatting.
 
 CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
 {
@@ -173,17 +172,13 @@ CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
       max_tokens: 400,
       temperature: 0.5,
       system: claudeSystemPrompt,
-      messages: [
-        { role: "user", content: message }
-      ]
+      messages: [{ role: "user", content: message }]
     });
 
     const claudeContent = claudeResponse.content?.[0]?.text || "{}";
     let parsed;
-
     try {
-      const clean = claudeContent.replace(/```json|```/g, "").trim();
-      parsed = JSON.parse(clean);
+      parsed = JSON.parse(claudeContent.replace(/```json|```/g, "").trim());
     } catch {
       parsed = {
         reply: claudeContent || "我收到你了。先停一下，回到身体，再继续。",
@@ -194,7 +189,6 @@ CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
       };
     }
 
-    // Validate
     const allowedStates = ["baseline", "overloaded", "numb", "anxious", "focus", "void"];
     if (!allowedStates.includes(parsed.suggestedState)) parsed.suggestedState = "baseline";
     if (typeof parsed.visualIntensity !== "number") parsed.visualIntensity = 0.5;
@@ -203,8 +197,20 @@ CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
     if (!parsed.musicCue) parsed.musicCue = "427Hz";
     if (!parsed.reply) parsed.reply = "我收到你了。先停一下，回到身体，再继续。";
 
-    // Tag which engine spoke (optional debug info)
+    // ── Save updated history to Supabase ──
+    const updatedMessages = [
+      ...dbHistory,
+      { role: "user", content: message, timestamp: new Date().toISOString() },
+      { role: "assistant", content: parsed.reply, state: parsed.suggestedState, timestamp: new Date().toISOString() }
+    ];
+
+    await supabase
+      .from("conversations")
+      .update({ messages: updatedMessages, updated_at: new Date().toISOString() })
+      .eq("conversation_id", activeConvId);
+
     parsed._engine = "GPT→Claude";
+    parsed.conversationId = activeConvId;
 
     return res.status(200).json(parsed);
 
