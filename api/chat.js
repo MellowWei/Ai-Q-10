@@ -157,7 +157,7 @@ Rules:
 - Reply in the user's language.
 - If user writes Chinese, reply in Chinese.
 - If user writes English, reply in English.
-- If user writes mixed Chinese and English, always reply bilingual — both Chinese and English in the same response.
+- CRITICAL LANGUAGE RULE: If user writes ANY English words mixed with Chinese, you MUST reply with BOTH Chinese AND English in the same response. Write the Chinese version first, then the English version below it. No exceptions.
 - Do not diagnose. Do not claim to treat illness.
 - If user expresses self-harm intent, calmly direct them to emergency services or a trusted person.
 - Never encourage self-harm, isolation, or loss of agency.
@@ -176,7 +176,7 @@ CRITICAL: Return ONLY valid JSON. No preamble. No markdown. Start with {
 
     const claudeResponse = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 400,
+      max_tokens: 600,
       temperature: 0.5,
       system: claudeSystemPrompt,
       messages: [{ role: "user", content: message }]
