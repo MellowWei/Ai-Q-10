@@ -424,63 +424,100 @@ function escHtml(str){
 }
 
 function renderConvList(){
-  const el=document.getElementById("convList");
-  if(conversations.length===0){
-    el.innerHTML='<div style="color:#7a7090;font-size:12px;padding:8px">No conversations yet</div>';
-    return;
-  }
-  el.innerHTML=conversations.map(c=>{
-    const id=escHtml(c.conversation_id);
-    const title=escHtml(c.title||"Untitled");
-    const active=c.conversation_id===currentConversationId?"active":"";
-    return `<div class="conv-item ${active}" onclick="switchConversation('${id}')">
-      <span class="conv-item-title">${title}</span>
-      <div class="conv-actions">
-        <button class="conv-btn conv-rename-btn" onclick="promptRename(event,'${id}','${title}')">✎</button>
-        <button class="conv-btn conv-delete-btn" onclick="deleteConversation(event,'${id}')">✕</button>
-      </div>
-    </div>`;
-  }).join("");
+  buildConvList(document.getElementById("convList"), false);
 }
 
 function renderConvSheetList(){
-  const el=document.getElementById("convSheetList");
+  buildConvList(document.getElementById("convSheetList"), true);
+}
+
+function buildConvList(el, isSheet){
   if(conversations.length===0){
     el.innerHTML='<div style="color:#7a7090;font-size:12px;padding:8px">No conversations yet</div>';
     return;
   }
-  el.innerHTML=conversations.map(c=>{
-    const id=escHtml(c.conversation_id);
-    const title=escHtml(c.title||"Untitled");
-    const active=c.conversation_id===currentConversationId?"active":"";
-    return `<div class="conv-item ${active}" onclick="switchConversation('${id}');closeConvSheet()">
-      <span class="conv-item-title">${title}</span>
-      <div class="conv-actions" style="opacity:1">
-        <button class="conv-btn conv-rename-btn" onclick="promptRename(event,'${id}','${title}')">✎</button>
-        <button class="conv-btn conv-delete-btn" onclick="deleteConversation(event,'${id}')">✕</button>
-      </div>
-    </div>`;
-  }).join("");
+  el.innerHTML="";
+  conversations.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="conv-item"+(c.conversation_id===currentConversationId?" active":"");
+
+    const span=document.createElement("span");
+    span.className="conv-item-title";
+    span.textContent=c.title||"Untitled";
+
+    const actions=document.createElement("div");
+    actions.className="conv-actions";
+    if(isSheet)actions.style.opacity="1";
+
+    const renameBtn=document.createElement("button");
+    renameBtn.className="conv-btn conv-rename-btn";
+    renameBtn.textContent="✎";
+    renameBtn.onclick=(e)=>{
+      e.stopPropagation();
+      startInlineRename(span, c.conversation_id);
+    };
+
+    const deleteBtn=document.createElement("button");
+    deleteBtn.className="conv-btn conv-delete-btn";
+    deleteBtn.textContent="✕";
+    deleteBtn.onclick=(e)=>{
+      e.stopPropagation();
+      doDelete(c.conversation_id);
+    };
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(deleteBtn);
+    div.appendChild(span);
+    div.appendChild(actions);
+
+    div.onclick=()=>{
+      switchConversation(c.conversation_id);
+      if(isSheet)closeConvSheet();
+    };
+
+    el.appendChild(div);
+  });
 }
 
-function promptRename(e,convId,currentTitle){
-  e.stopPropagation();
-  const newTitle=prompt("Rename conversation:",currentTitle);
-  if(newTitle===null)return;
-  const trimmed=newTitle.trim()||currentTitle;
-  doRename(convId,trimmed);
+function startInlineRename(span, convId){
+  const currentTitle=span.textContent;
+  const input=document.createElement("input");
+  input.value=currentTitle;
+  input.style.cssText="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(180,120,255,.5);color:white;border-radius:8px;padding:2px 8px;font-size:13px;outline:none;";
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+  let saved=false;
+  async function save(){
+    if(saved)return; saved=true;
+    const newTitle=input.value.trim()||currentTitle;
+    try{
+      await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId,{
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({title:newTitle})
+      });
+      conversations=conversations.map(c=>c.conversation_id===convId?{...c,title:newTitle}:c);
+    }catch(err){console.error("Rename failed:",err);}
+    renderConvList();
+  }
+  input.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"){ev.preventDefault();save();}
+    if(ev.key==="Escape"){saved=true;renderConvList();}
+  });
+  input.addEventListener("blur",save);
 }
 
-async function doRename(convId,newTitle){
+async function doDelete(convId){
   try{
-    await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId,{
-      method:"PATCH",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({title:newTitle})
-    });
-    conversations=conversations.map(c=>c.conversation_id===convId?{...c,title:newTitle}:c);
-  }catch(err){console.error("Rename failed:",err);}
-  renderConvList();
+    await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId,{method:"DELETE"});
+    conversations=conversations.filter(c=>c.conversation_id!==convId);
+    if(currentConversationId===convId){
+      currentConversationId=null;
+      logEl.textContent="[AiQ愛<3] 算力的慈悲已就绪。请输入你的感质频率。";
+    }
+    renderConvList();
+  }catch(e){console.error("Delete failed:",e);}
 }
 
 async function switchConversation(convId){
@@ -507,18 +544,6 @@ function newConversation(){
   renderConvList();
 }
 
-async function deleteConversation(e,convId){
-  e.stopPropagation();
-  try{
-    await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId,{method:"DELETE"});
-    conversations=conversations.filter(c=>c.conversation_id!==convId);
-    if(currentConversationId===convId){
-      currentConversationId=null;
-      logEl.textContent="[AiQ愛<3] 算力的慈悲已就绪。请输入你的感质频率。";
-    }
-    renderConvList();
-  }catch(e){console.error("Delete failed:",e);}
-}
 
 function exportConversation(){
   const lines=logEl.textContent.split("\n").filter(l=>l.trim());
