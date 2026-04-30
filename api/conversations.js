@@ -14,8 +14,24 @@ export default async function handler(req, res) {
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
     const { userId = "anonymous", conversationId } = req.query;
 
-    // GET - list all conversations for a user
+    // GET - if conversationId provided, return full messages
+    //       otherwise list all conversations for a user
     if (req.method === "GET") {
+      if (conversationId) {
+        const { data, error } = await supabase
+          .from("conversations")
+          .select("conversation_id, title, messages, updated_at, created_at")
+          .eq("conversation_id", conversationId)
+          .eq("user_id", userId)
+          .single();
+
+        if (error) {
+          console.error("Supabase GET single error:", error.message);
+          return res.status(500).json({ error: error.message });
+        }
+        return res.status(200).json({ conversation: data });
+      }
+
       const { data, error } = await supabase
         .from("conversations")
         .select("conversation_id, title, updated_at, created_at")
