@@ -37,6 +37,16 @@ button:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)
 .user-info{position:fixed;top:20px;right:20px;z-index:9;font-size:12px;color:#8878c0;display:flex;align-items:center;gap:10px;backdrop-filter:blur(20px);}
 .logout-btn{font-size:11px;padding:6px 14px;border-radius:999px;margin:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#8878c0;}
 .logout-btn:hover{color:#e0d8ff;transform:none}
+.spotify-btn{font-size:11px;padding:6px 14px;border-radius:999px;margin:0 0 0 8px;background:rgba(30,215,96,.12);border:1px solid rgba(30,215,96,.25);color:#1ed760;cursor:pointer;transition:.2s;}
+.spotify-btn:hover{background:rgba(30,215,96,.22);transform:none}
+.spotify-btn.connected{background:rgba(30,215,96,.18);border-color:rgba(30,215,96,.4)}
+.spotify-card{background:rgba(30,215,96,.06);border:1px solid rgba(30,215,96,.18);border-radius:16px;padding:12px 16px;margin-top:8px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:.2s;}
+.spotify-card:hover{background:rgba(30,215,96,.12);border-color:rgba(30,215,96,.3)}
+.spotify-card-img{width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;background:rgba(30,215,96,.1);}
+.spotify-card-info{flex:1;min-width:0;}
+.spotify-card-name{font-size:13px;color:#e0f8ec;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.spotify-card-desc{font-size:11px;color:#1ed760;margin-top:2px;opacity:.7;}
+.spotify-section{margin-top:6px;display:flex;flex-direction:column;gap:6px;}
 
 /* ── Status ── */
 .status{position:fixed;right:20px;bottom:20px;z-index:9;border:1px solid rgba(255,255,255,.1);background:rgba(4,3,10,.8);padding:12px 16px;border-radius:16px;font-size:11px;line-height:1.7;backdrop-filter:blur(20px);color:#6858a0;letter-spacing:.06em;}
@@ -213,6 +223,7 @@ body[data-state="anxious"] .chat-window{box-shadow:0 0 60px rgba(251,191,36,.08)
 <div class="user-info" id="userInfo" style="display:none">
   <span id="userEmail" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   <button class="logout-btn" onclick="logout()">Sign out</button>
+  <button class="spotify-btn" id="spotifyBtn" onclick="handleSpotifyClick()">♫ Spotify</button>
 </div>
 
 <div class="enter" id="enter">
@@ -502,6 +513,7 @@ function setState(state,writeLog=true){
   homeModeEl.textContent="CURRENT MODE: "+currentMode;
   document.getElementById("chatHeaderState").textContent=currentState.toUpperCase()+" · "+currentMusic;
   if(writeLog)addSystemMsg(currentMode);
+  if(spotifyToken && writeLog) setTimeout(()=>getSpotifyRecommendations(currentState), 500);
 }
 function applyAIQPayload(data){
   if(!data)return;
@@ -779,6 +791,128 @@ const observer=new IntersectionObserver(entries=>{
 },{threshold:0.3});
 observer.observe(profileSection);
 
+
+// ── Spotify ──
+const SPOTIFY_ENDPOINT = "https://ai-q-3.vercel.app/api/spotify";
+let spotifyToken = null;
+let spotifyRefreshToken = null;
+
+async function handleSpotifyClick(){
+  if(spotifyToken){
+    // Already connected - show current recommendations
+    getSpotifyRecommendations(currentState);
+  } else {
+    connectSpotify();
+  }
+}
+
+async function connectSpotify(){
+  const res = await fetch(SPOTIFY_ENDPOINT + "?action=auth");
+  const data = await res.json();
+  if(data.authUrl){
+    localStorage.setItem("aiq_spotify_redirect", window.location.href);
+    window.location.href = data.authUrl;
+  }
+}
+
+async function handleSpotifyCallback(){
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const state = params.get("state");
+  if(code && state === "aiq_spotify_auth"){
+    // Clean URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+    try{
+      const res = await fetch(SPOTIFY_ENDPOINT + "?action=token", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({code})
+      });
+      const data = await res.json();
+      if(data.access_token){
+        spotifyToken = data.access_token;
+        spotifyRefreshToken = data.refresh_token;
+        localStorage.setItem("aiq_spotify_token", spotifyToken);
+        localStorage.setItem("aiq_spotify_refresh", spotifyRefreshToken);
+        updateSpotifyBtn(true);
+        addMsg("✦ Spotify connected. I'll recommend music based on your rhythm state.", "aiq");
+      }
+    }catch(e){console.error("Spotify auth error:", e);}
+  }
+}
+
+function loadSpotifyTokens(){
+  spotifyToken = localStorage.getItem("aiq_spotify_token");
+  spotifyRefreshToken = localStorage.getItem("aiq_spotify_refresh");
+  if(spotifyToken) updateSpotifyBtn(true);
+}
+
+function updateSpotifyBtn(connected){
+  const btn = document.getElementById("spotifyBtn");
+  if(!btn) return;
+  if(connected){
+    btn.textContent = "♫ Connected";
+    btn.classList.add("connected");
+  } else {
+    btn.textContent = "♫ Spotify";
+    btn.classList.remove("connected");
+  }
+}
+
+async function getSpotifyRecommendations(state){
+  if(!spotifyToken) return;
+  try{
+    const res = await fetch(SPOTIFY_ENDPOINT + "?action=recommend&state=" + state + "&token=" + spotifyToken);
+    if(res.status === 401){
+      // Token expired, try refresh
+      await refreshSpotifyToken();
+      return;
+    }
+    const data = await res.json();
+    if(data.playlists && data.playlists.length > 0){
+      const intro = document.createElement("div");
+      intro.className = "msg msg-aiq";
+      intro.textContent = "♫ " + data.mood + " — recommended playlists:";
+      messagesEl.appendChild(intro);
+
+      const section = document.createElement("div");
+      section.className = "spotify-section";
+
+      data.playlists.forEach(p => {
+        const card = document.createElement("a");
+        card.className = "spotify-card";
+        card.href = p.url;
+        card.target = "_blank";
+        card.rel = "noopener";
+        card.innerHTML = (p.image ? '<img class="spotify-card-img" src="' + p.image + '" alt="">' : '<div class="spotify-card-img"></div>') +
+          '<div class="spotify-card-info"><div class="spotify-card-name">' + (p.name||"Playlist") + '</div><div class="spotify-card-desc">Open in Spotify →</div></div>';
+        section.appendChild(card);
+      });
+
+      messagesEl.appendChild(section);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+  }catch(e){console.error("Spotify recommend error:", e);}
+}
+
+async function refreshSpotifyToken(){
+  if(!spotifyRefreshToken) return;
+  try{
+    const res = await fetch(SPOTIFY_ENDPOINT + "?action=refresh", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({refresh_token: spotifyRefreshToken})
+    });
+    const data = await res.json();
+    if(data.access_token){
+      spotifyToken = data.access_token;
+      localStorage.setItem("aiq_spotify_token", spotifyToken);
+    }
+  }catch(e){console.error("Spotify refresh error:", e);}
+}
+
+handleSpotifyCallback();
+loadSpotifyTokens();
 initAuth();
 </script>
 </body>
