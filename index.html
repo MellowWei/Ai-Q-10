@@ -911,9 +911,10 @@ async function refreshSpotifyToken(){
   }catch(e){console.error("Spotify refresh error:", e);}
 }
 
-handleSpotifyCallback();
 loadSpotifyTokens();
 initAuth();
+// Handle Spotify callback after page load
+setTimeout(handleSpotifyCallback, 500);
 </script>
 </body>
 </html>
