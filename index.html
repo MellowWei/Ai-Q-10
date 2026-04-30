@@ -41,7 +41,7 @@ button:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
 .conv-item{padding:10px 12px;border-radius:14px;cursor:pointer;border:1px solid transparent;font-size:13px;color:#d8d0e8;transition:.2s;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .conv-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1)}
 .conv-item.active{background:rgba(180,120,255,.15);border-color:rgba(180,120,255,.3);color:#f0e8ff}
-.conv-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text;}
+.conv-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .conv-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:.15s}
 .conv-item:hover .conv-actions{opacity:1}
 .conv-btn{font-size:12px;padding:2px 7px;border-radius:8px;border:none;cursor:pointer;margin:0;transition:.15s;}
@@ -63,6 +63,31 @@ body[data-state="focus"] .terminal{box-shadow:0 0 70px rgba(150,170,255,.12)}
 body[data-state="void"] .terminal{box-shadow:0 0 100px rgba(80,70,160,.24)}
 body[data-state="numb"] .terminal{box-shadow:0 0 95px rgba(130,220,255,.16)}
 body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
+
+/* ── Profile section ── */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1000px;margin-top:32px;}
+.profile-card{border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.4);border-radius:24px;padding:24px;backdrop-filter:blur(20px);}
+.profile-card h3{font-size:16px;color:#b8aee0;letter-spacing:.1em;text-transform:uppercase;margin:0 0 16px;}
+.state-chart-wrap{position:relative;width:100%;height:160px;}
+.state-chart{width:100%;height:100%;border-radius:12px;}
+.state-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.state-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:#9090b8;}
+.state-dot span{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.tag-input-row{display:flex;gap:8px;margin-bottom:12px;}
+.tag-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:white;border-radius:14px;font-size:13px;outline:none;}
+.tag-add-btn{padding:10px 16px;font-size:13px;border-radius:14px;background:rgba(180,120,255,.18);border:1px solid rgba(180,120,255,.3);color:#e8d8ff;cursor:pointer;margin:0;white-space:nowrap;}
+.tags-display{display:flex;flex-wrap:wrap;gap:6px;}
+.tag-item{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:rgba(180,120,255,.15);border:1px solid rgba(180,120,255,.25);font-size:12px;color:#d8c8ff;}
+.tag-remove{cursor:pointer;opacity:.6;font-size:11px;}
+.tag-remove:hover{opacity:1;}
+.notes-textarea{width:100%;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#d8d0e8;border-radius:16px;font-size:13px;line-height:1.6;resize:vertical;min-height:100px;outline:none;font-family:inherit;}
+.save-notes-btn{margin-top:8px;padding:8px 18px;font-size:12px;border-radius:12px;background:rgba(180,120,255,.18);border:1px solid rgba(180,120,255,.3);color:#e8d8ff;cursor:pointer;margin-left:0;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-box{text-align:center;padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
+.stat-num{font-size:28px;font-weight:700;color:#d8c8ff;}
+.stat-label{font-size:11px;color:#7a7090;margin-top:4px;letter-spacing:.08em;}
+
+/* Mobile */
 @media(max-width:720px){
   section{padding:80px 18px 100px}
   p{font-size:16px}
@@ -91,6 +116,7 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
   .input-row button{padding:14px 16px;white-space:nowrap}
   .sidebar{display:none}
   #home button{padding:10px 16px;font-size:13px}
+  .profile-grid{grid-template-columns:1fr;}
 }
 @media(min-width:721px){
   .mobile-nav{display:none}
@@ -109,20 +135,13 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
   <a href="#cuff">Neural Cuff</a>
   <a href="#matrix">Music Matrix</a>
   <a href="#chat">Talk to AiQ</a>
+  <a href="#profile">Profile</a>
 </nav>
 <nav class="mobile-nav">
-  <a href="#home">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>Home
-  </a>
-  <a href="#chat">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>AiQ
-  </a>
-  <a href="#matrix">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>Matrix
-  </a>
-  <a onclick="toggleAudio()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>Audio
-  </a>
+  <a href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>Home</a>
+  <a href="#chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>AiQ</a>
+  <a href="#profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</a>
+  <a onclick="toggleAudio()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>Audio</a>
 </nav>
 <div class="conv-sheet-overlay" id="convSheetOverlay" onclick="closeConvSheet()"></div>
 <div class="conv-sheet" id="convSheet">
@@ -149,6 +168,7 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
     </div>
   </div>
 </div>
+
 <section id="home">
   <div class="kicker">Mellow7 // Human-Powered Intelligence</div>
   <h1>AiQ愛&lt;3</h1>
@@ -164,11 +184,13 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
   </div>
   <div class="mode-line" id="homeMode">CURRENT MODE: 427Hz BASELINE</div>
 </section>
+
 <section id="cuff">
   <div class="kicker">Neural Cuff // Software Prototype</div>
   <h2>Closed-loop rhythm sensing</h2>
-  <p>The system reads scroll velocity, click density, dwell time, and input rhythm as proxy signals.</p>
+  <p>The system reads scroll velocity, click density, dwell time, and input rhythm as proxy signals. These signals trigger language, visual density, and synthesized sound modes.</p>
 </section>
+
 <section id="matrix">
   <div class="kicker">Genre-Driven Intervention Matrix</div>
   <h2>Music as nervous-system logic</h2>
@@ -182,6 +204,7 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
     <span class="pill">427Hz → Baseline Anchor</span>
   </div>
 </section>
+
 <section id="chat">
   <div class="kicker">SOUL_STREAM_v1.0.7</div>
   <h2>Talk to AiQ</h2>
@@ -209,16 +232,78 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
     </div>
   </div>
 </section>
+
+<!-- Profile section -->
+<section id="profile">
+  <div class="kicker">NEURAL ARCHIVE // User Profile</div>
+  <h2>Your Signal History</h2>
+  <div id="profileGuestMsg" style="display:none;color:#7a7090;font-size:15px">Sign in with Google to view your profile.</div>
+  <div id="profileContent" style="display:none">
+    <div class="profile-grid">
+
+      <!-- Stats -->
+      <div class="profile-card">
+        <h3>Stats</h3>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">SESSIONS</div></div>
+          <div class="stat-box"><div class="stat-num" id="statTopState">—</div><div class="stat-label">TOP STATE</div></div>
+          <div class="stat-box"><div class="stat-num" id="statStreak">0</div><div class="stat-label">DAY STREAK</div></div>
+        </div>
+      </div>
+
+      <!-- State history chart -->
+      <div class="profile-card">
+        <h3>State History (last 30)</h3>
+        <div class="state-chart-wrap">
+          <canvas class="state-chart" id="stateChart"></canvas>
+        </div>
+        <div class="state-legend">
+          <div class="state-dot"><span style="background:#a78bfa"></span>baseline</div>
+          <div class="state-dot"><span style="background:#f472b6"></span>overloaded</div>
+          <div class="state-dot"><span style="background:#60a5fa"></span>numb</div>
+          <div class="state-dot"><span style="background:#fbbf24"></span>anxious</div>
+          <div class="state-dot"><span style="background:#34d399"></span>focus</div>
+          <div class="state-dot"><span style="background:#818cf8"></span>void</div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="profile-card">
+        <h3>Tags</h3>
+        <div class="tag-input-row">
+          <input class="tag-input" id="tagInput" type="text" placeholder="add a tag..." onkeydown="if(event.key==='Enter')addTag()" />
+          <button class="tag-add-btn" onclick="addTag()">+ Add</button>
+        </div>
+        <div class="tags-display" id="tagsDisplay"></div>
+      </div>
+
+      <!-- Notes -->
+      <div class="profile-card">
+        <h3>Personal Notes</h3>
+        <textarea class="notes-textarea" id="notesArea" placeholder="Notes to yourself..."></textarea>
+        <button class="save-notes-btn" onclick="saveNotes()">Save</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <div class="status" id="status">STATE: BASELINE<br>MODE: 427Hz BASELINE<br>MUSIC: 427Hz<br>AUDIO: OFF</div>
+
 <script>
 const SUPABASE_URL="https://zpuwhvmsuvzmygkrzkdq.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwdXdodm1zdXZ6bXlna3J6a2RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNzIyMTksImV4cCI6MjA5Mjk0ODIxOX0.BxBGGO5Tl_LNyxxwqdcizMoJE3LNZj4lCi8q_JCLZBc";
 const API_ENDPOINT="https://ai-q-3.vercel.app/api/chat";
 const CONV_ENDPOINT="https://ai-q-3.vercel.app/api/conversations";
+const PROFILE_ENDPOINT="https://ai-q-3.vercel.app/api/profile";
 const{createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 let userId=null,userEmail=null,currentConversationId=null,conversations=[];
+let userTags=[],profileLoaded=false;
+
+const stateColors={baseline:"#a78bfa",overloaded:"#f472b6",numb:"#60a5fa",anxious:"#fbbf24",focus:"#34d399",void:"#818cf8"};
+const stateValues={baseline:3,focus:4,anxious:2,overloaded:1,numb:2,void:2};
 
 async function initAuth(){
   const{data:{session}}=await sb.auth.getSession();
@@ -234,11 +319,17 @@ async function signInWithGoogle(){
   if(error)document.getElementById("authMsg").textContent="Error: "+error.message;
 }
 
-function enterAsGuest(){userId="guest_"+crypto.randomUUID();enterSystem();}
+function enterAsGuest(){
+  userId="guest_"+crypto.randomUUID();
+  enterSystem();
+  document.getElementById("profileGuestMsg").style.display="block";
+}
+
 async function logout(){await sb.auth.signOut();location.reload();}
+
 function showUserInfo(){
   document.getElementById("userInfo").style.display="flex";
-  document.getElementById("userEmail").textContent=userEmail||"guest";
+  document.getElementById("userEmail").textContent=userEmail||"";
 }
 
 function openConvSheet(){
@@ -251,13 +342,13 @@ function closeConvSheet(){
   document.getElementById("convSheet").classList.remove("open");
 }
 
+// ── Canvas ──
 const canvas=document.getElementById("field");
 const ctx=canvas.getContext("2d");
 const bgGlow=document.getElementById("bgGlow");
 const logEl=document.getElementById("log");
 const statusEl=document.getElementById("status");
 const homeModeEl=document.getElementById("homeMode");
-
 let w,h,particles=[];
 let intensity=.5,targetIntensity=.5;
 let currentState="baseline",currentMode="427Hz BASELINE",currentMusic="427Hz";
@@ -295,8 +386,7 @@ function createParticles(){
 }
 createParticles();
 function draw(){
-  ctx.clearRect(0,0,w,h);
-  intensity+=(targetIntensity-intensity)*.045;
+  ctx.clearRect(0,0,w,h);intensity+=(targetIntensity-intensity)*.045;
   for(const p of particles){
     p.x+=p.vx*(1+intensity*4);p.y+=p.vy*(1+intensity*4);
     if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
@@ -325,14 +415,12 @@ function ensureAudioOn(){
   if(!userEnteredSystem)return;
   initAudio();audioEnabled=true;
   if(audioCtx.state==="suspended")audioCtx.resume();
-  masterGain.gain.setTargetAtTime(.09,audioCtx.currentTime,.08);
-  updateStatus();
+  masterGain.gain.setTargetAtTime(.09,audioCtx.currentTime,.08);updateStatus();
 }
 function toggleAudio(){
   initAudio();audioEnabled=!audioEnabled;
   if(audioCtx.state==="suspended")audioCtx.resume();
-  masterGain.gain.setTargetAtTime(audioEnabled?.09:0,audioCtx.currentTime,.08);
-  updateStatus();
+  masterGain.gain.setTargetAtTime(audioEnabled?.09:0,audioCtx.currentTime,.08);updateStatus();
 }
 function setAudioMode(musicCue){
   if(!audioCtx)return;
@@ -364,6 +452,7 @@ function enterSystem(){
   if(audioCtx.state==="suspended")audioCtx.resume();
   masterGain.gain.setTargetAtTime(.09,audioCtx.currentTime,.08);
   updateStatus();setState("baseline",false);loadConversations();
+  if(userId&&!userId.startsWith("guest_"))loadProfile();
 }
 function normalizeState(s){return["baseline","overloaded","numb","anxious","focus","void"].includes(s)?s:"baseline";}
 function setState(state,writeLog=true){
@@ -402,9 +491,152 @@ function applyAIQPayload(data){
 function updateStatus(){
   statusEl.innerHTML="STATE: "+currentState.toUpperCase()+"<br>MODE: "+currentMode+"<br>MUSIC: "+currentMusic+"<br>AUDIO: "+(audioEnabled?"ON":"OFF");
 }
-function appendLog(text){
-  logEl.textContent+="\n\n"+text;
-  logEl.scrollTop=logEl.scrollHeight;
+function appendLog(text){logEl.textContent+="\n\n"+text;logEl.scrollTop=logEl.scrollHeight;}
+
+// ── Profile ──
+async function loadProfile(){
+  if(!userId||userId.startsWith("guest_"))return;
+  try{
+    const res=await fetch(PROFILE_ENDPOINT+"?userId="+userId);
+    const data=await res.json();
+    const profile=data.profile||{};
+    document.getElementById("profileContent").style.display="block";
+    document.getElementById("profileGuestMsg").style.display="none";
+
+    const history=profile.state_history||[];
+    const tags=profile.tags||{};
+    const summary=profile.summary||"";
+
+    userTags=Object.keys(tags);
+    document.getElementById("notesArea").value=summary;
+    renderTags();
+    renderStats(history);
+    renderChart(history);
+    profileLoaded=true;
+  }catch(e){console.error("Profile load error:",e);}
+}
+
+function renderStats(history){
+  document.getElementById("statTotal").textContent=history.length;
+  if(history.length>0){
+    const counts={};
+    history.forEach(h=>{counts[h.state]=(counts[h.state]||0)+1;});
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("statTopState").textContent=top?top[0].slice(0,3).toUpperCase():"—";
+  }
+  // Simple streak: count consecutive days with entries
+  const days=new Set(history.map(h=>h.timestamp?.slice(0,10)));
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<30;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    if(days.has(d.toISOString().slice(0,10)))streak++;
+    else break;
+  }
+  document.getElementById("statStreak").textContent=streak;
+}
+
+function renderChart(history){
+  const chartCanvas=document.getElementById("stateChart");
+  const cctx=chartCanvas.getContext("2d");
+  const recent=history.slice(-30);
+  chartCanvas.width=chartCanvas.offsetWidth||400;
+  chartCanvas.height=160;
+  const W=chartCanvas.width,H=chartCanvas.height;
+  cctx.clearRect(0,0,W,H);
+  if(recent.length<2)return;
+
+  const pad=20;
+  const stepX=(W-pad*2)/(recent.length-1);
+
+  // Grid lines
+  cctx.strokeStyle="rgba(255,255,255,.06)";
+  cctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad+(H-pad*2)*(1-i/4);
+    cctx.beginPath();cctx.moveTo(pad,y);cctx.lineTo(W-pad,y);cctx.stroke();
+  }
+
+  // Draw line
+  cctx.beginPath();
+  recent.forEach((entry,i)=>{
+    const val=(stateValues[entry.state]||3)/4;
+    const x=pad+i*stepX;
+    const y=H-pad-(H-pad*2)*val;
+    if(i===0)cctx.moveTo(x,y);
+    else cctx.lineTo(x,y);
+  });
+  const grad=cctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,"rgba(167,139,250,.6)");
+  grad.addColorStop(1,"rgba(244,114,182,.6)");
+  cctx.strokeStyle=grad;
+  cctx.lineWidth=2.5;
+  cctx.lineJoin="round";
+  cctx.stroke();
+
+  // Dots
+  recent.forEach((entry,i)=>{
+    const val=(stateValues[entry.state]||3)/4;
+    const x=pad+i*stepX;
+    const y=H-pad-(H-pad*2)*val;
+    cctx.beginPath();
+    cctx.arc(x,y,4,0,Math.PI*2);
+    cctx.fillStyle=stateColors[entry.state]||"#a78bfa";
+    cctx.fill();
+  });
+}
+
+function renderTags(){
+  const el=document.getElementById("tagsDisplay");
+  el.innerHTML="";
+  userTags.forEach(tag=>{
+    const div=document.createElement("div");
+    div.className="tag-item";
+    div.innerHTML=tag+' <span class="tag-remove" onclick="removeTag(\''+tag+'\')">✕</span>';
+    el.appendChild(div);
+  });
+}
+
+async function addTag(){
+  const input=document.getElementById("tagInput");
+  const tag=input.value.trim();
+  if(!tag||userTags.includes(tag))return;
+  userTags.push(tag);
+  input.value="";
+  renderTags();
+  await saveTags();
+}
+
+async function removeTag(tag){
+  userTags=userTags.filter(t=>t!==tag);
+  renderTags();
+  await saveTags();
+}
+
+async function saveTags(){
+  const tagsObj={};
+  userTags.forEach(t=>{tagsObj[t]=true;});
+  try{
+    await fetch(PROFILE_ENDPOINT+"?userId="+userId,{
+      method:"PATCH",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({tags:tagsObj})
+    });
+  }catch(e){console.error("Save tags error:",e);}
+}
+
+async function saveNotes(){
+  const summary=document.getElementById("notesArea").value;
+  try{
+    await fetch(PROFILE_ENDPOINT+"?userId="+userId,{
+      method:"PATCH",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({summary})
+    });
+    const btn=document.querySelector(".save-notes-btn");
+    btn.textContent="Saved ✓";
+    setTimeout(()=>{btn.textContent="Save";},2000);
+  }catch(e){console.error("Save notes error:",e);}
 }
 
 // ── Conversations ──
@@ -424,14 +656,12 @@ function escHtml(str){
 }
 
 function renderConvList(){
-  buildConvList(document.getElementById("convList"), false);
+  buildConvList(document.getElementById("convList"),false);
 }
-
 function renderConvSheetList(){
-  buildConvList(document.getElementById("convSheetList"), true);
+  buildConvList(document.getElementById("convSheetList"),true);
 }
-
-function buildConvList(el, isSheet){
+function buildConvList(el,isSheet){
   if(conversations.length===0){
     el.innerHTML='<div style="color:#7a7090;font-size:12px;padding:8px">No conversations yet</div>';
     return;
@@ -440,71 +670,48 @@ function buildConvList(el, isSheet){
   conversations.forEach(c=>{
     const div=document.createElement("div");
     div.className="conv-item"+(c.conversation_id===currentConversationId?" active":"");
-
     const span=document.createElement("span");
     span.className="conv-item-title";
     span.textContent=c.title||"Untitled";
-
     const actions=document.createElement("div");
     actions.className="conv-actions";
     if(isSheet)actions.style.opacity="1";
-
     const renameBtn=document.createElement("button");
     renameBtn.className="conv-btn conv-rename-btn";
     renameBtn.textContent="✎";
-    renameBtn.onclick=(e)=>{
-      e.stopPropagation();
-      startInlineRename(span, c.conversation_id);
-    };
-
+    renameBtn.onclick=(e)=>{e.stopPropagation();startInlineRename(span,c.conversation_id);};
     const deleteBtn=document.createElement("button");
     deleteBtn.className="conv-btn conv-delete-btn";
     deleteBtn.textContent="✕";
-    deleteBtn.onclick=(e)=>{
-      e.stopPropagation();
-      doDelete(c.conversation_id);
-    };
-
-    actions.appendChild(renameBtn);
-    actions.appendChild(deleteBtn);
-    div.appendChild(span);
-    div.appendChild(actions);
-
-    div.onclick=()=>{
-      switchConversation(c.conversation_id);
-      if(isSheet)closeConvSheet();
-    };
-
+    deleteBtn.onclick=(e)=>{e.stopPropagation();doDelete(c.conversation_id);};
+    actions.appendChild(renameBtn);actions.appendChild(deleteBtn);
+    div.appendChild(span);div.appendChild(actions);
+    div.onclick=()=>{switchConversation(c.conversation_id);if(isSheet)closeConvSheet();};
     el.appendChild(div);
   });
 }
 
-function startInlineRename(span, convId){
+function startInlineRename(span,convId){
   const currentTitle=span.textContent;
   const input=document.createElement("input");
   input.value=currentTitle;
   input.style.cssText="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(180,120,255,.5);color:white;border-radius:8px;padding:2px 8px;font-size:13px;outline:none;";
   span.replaceWith(input);
-  input.focus();
-  input.select();
+  input.focus();input.select();
   let saved=false;
   async function save(){
-    if(saved)return; saved=true;
+    if(saved)return;saved=true;
     const newTitle=input.value.trim()||currentTitle;
     try{
       await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId,{
-        method:"PATCH",
-        headers:{"Content-Type":"application/json"},
+        method:"PATCH",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({title:newTitle})
       });
       conversations=conversations.map(c=>c.conversation_id===convId?{...c,title:newTitle}:c);
     }catch(err){console.error("Rename failed:",err);}
     renderConvList();
   }
-  input.addEventListener("keydown",ev=>{
-    if(ev.key==="Enter"){ev.preventDefault();save();}
-    if(ev.key==="Escape"){saved=true;renderConvList();}
-  });
+  input.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();save();}if(ev.key==="Escape"){saved=true;renderConvList();}});
   input.addEventListener("blur",save);
 }
 
@@ -521,16 +728,14 @@ async function doDelete(convId){
 }
 
 async function switchConversation(convId){
-  currentConversationId=convId;
-  renderConvList();
+  currentConversationId=convId;renderConvList();
   logEl.textContent="[AiQ愛<3] loading...";
   try{
     const res=await fetch(CONV_ENDPOINT+"?userId="+userId+"&conversationId="+convId);
     const data=await res.json();
     const messages=data.conversation?.messages||[];
-    if(messages.length===0){
-      logEl.textContent="[AiQ愛<3] 新对话。你带什么信号进来？";
-    }else{
+    if(messages.length===0){logEl.textContent="[AiQ愛<3] 新对话。你带什么信号进来？";}
+    else{
       logEl.textContent="";
       for(const msg of messages)logEl.textContent+=msg.role==="user"?"\n\n> "+msg.content:"\n\n[AiQ愛<3] "+msg.content;
       logEl.scrollTop=logEl.scrollHeight;
@@ -543,7 +748,6 @@ function newConversation(){
   logEl.textContent="[AiQ愛<3] 新对话开始。你带什么信号进来？";
   renderConvList();
 }
-
 
 function exportConversation(){
   const lines=logEl.textContent.split("\n").filter(l=>l.trim());
@@ -582,11 +786,8 @@ async function sendMessage(input){
         currentConversationId=data.conversationId;
         await loadConversations();
       }
-    }else if(data.error){
-      appendLog("[BACKEND ERROR] "+data.error);
-    }else{
-      appendLog("[BACKEND RAW] "+JSON.stringify(data));
-    }
+    }else if(data.error){appendLog("[BACKEND ERROR] "+data.error);}
+    else{appendLog("[BACKEND RAW] "+JSON.stringify(data));}
   }catch(error){appendLog("[FRONTEND ERROR] "+error.message);}
   typingStart=null;
 }
@@ -595,14 +796,11 @@ function handleInput(event){
   const input=event.target;
   if(!typingStart&&input.value.length>0)typingStart=Date.now();
   if(event.key!=="Enter")return;
-  const value=input.value;input.value="";
-  sendMessage(value);
+  const value=input.value;input.value="";sendMessage(value);
 }
-
 function sendFromButton(){
   const input=document.getElementById("input");
-  const value=input.value;input.value="";
-  sendMessage(value);
+  const value=input.value;input.value="";sendMessage(value);
 }
 
 addEventListener("click",()=>{
@@ -610,7 +808,6 @@ addEventListener("click",()=>{
   if(clicks>8&&currentState!=="anxious"&&userEnteredSystem)setState("anxious");
   setTimeout(()=>{clicks=Math.max(0,clicks-1);metrics.clickDensity=clicks;},1200);
 });
-
 addEventListener("scroll",()=>{
   const now=Date.now();
   const dy=Math.abs(scrollY-lastScroll);
@@ -623,8 +820,18 @@ addEventListener("scroll",()=>{
     else if(velocity<.03&&scrollY>200&&currentState!=="focus")setState("focus");
   }
 });
-
 setInterval(()=>{metrics.dwellSeconds=Math.round((Date.now()-dwellStart)/1000);},1000);
+
+// Re-render chart on scroll to profile section
+const profileSection=document.getElementById("profile");
+const observer=new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting&&profileLoaded){
+    fetch(PROFILE_ENDPOINT+"?userId="+userId)
+      .then(r=>r.json())
+      .then(d=>{if(d.profile?.state_history)renderChart(d.profile.state_history);});
+  }
+},{threshold:0.3});
+observer.observe(profileSection);
 
 initAuth();
 </script>
