@@ -582,7 +582,28 @@ function escHtml(str){
 async function switchConversation(convId){
   currentConversationId=convId;
   renderConvList();
-  logEl.textContent=`[AiQ愛<3] 对话已加载。信号就绪。`;
+  logEl.textContent="[AiQ愛<3] loading...";
+  try{
+    const res=await fetch(`${CONV_ENDPOINT}?userId=${userId}&conversationId=${convId}`);
+    const data=await res.json();
+    const messages=data.conversation?.messages||[];
+    if(messages.length===0){
+      logEl.textContent="[AiQ愛<3] 新对话。你带什么信号进来？";
+    } else {
+      logEl.textContent="";
+      for(const msg of messages){
+        if(msg.role==="user"){
+          logEl.textContent+="\n\n> "+msg.content;
+        } else {
+          logEl.textContent+="\n\n[AiQ愛<3] "+msg.content;
+        }
+      }
+      logEl.scrollTop=logEl.scrollHeight;
+    }
+  }catch(e){
+    logEl.textContent="[AiQ愛<3] 对话已加载。信号就绪。";
+    console.error("switchConversation error:",e);
+  }
 }
 
 function newConversation(){
