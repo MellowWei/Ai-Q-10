@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method === "GET") return res.status(200).json({ ok: true, message: "AiQ API is alive." });
+  if (req.method === "GET") return res.status(200).json({ ok: true });
   if (req.method !== "POST") return res.status(405).json({ error: "Only POST allowed" });
 
   try {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
     const { message = "", state = "baseline", metrics = {}, userId = "anonymous", conversationId = null } = req.body || {};
 
-    // ── Load history from Supabase ──
+    // ── Load conversation history ──
     let dbHistory = [];
     let activeConvId = conversationId;
 
@@ -42,12 +42,11 @@ export default async function handler(req, res) {
         messages: []
       });
       if (insertError) console.error("Supabase insert error:", insertError.message);
-      else console.log("Supabase insert OK:", activeConvId);
     }
 
     // ── LAYER 1: GPT reads the signal ──
     const gptPrompt = `You are the analytical core of AiQ愛<3.
-Your only job: analyze the user signal and return structured JSON. Do NOT reply to the user.
+Analyze the user signal and return structured JSON only. Do NOT reply to the user.
 
 Current state: ${state}
 Metrics: ${JSON.stringify(metrics)}
@@ -120,9 +119,7 @@ Reply rules:
 - Never diagnose. Never claim to treat illness.
 - If self-harm intent → calmly direct to emergency services.
 
-CRITICAL OUTPUT FORMAT:
-Return ONLY a JSON object. No explanation. No markdown. No backticks. Start with { end with }
-Required shape:
+CRITICAL: Return ONLY a JSON object. No explanation. No markdown. No backticks. Start with {
 {"reply":"...","suggestedState":"${analysis.detectedState}","suggestedMode":"${analysis.suggestedMode}","musicCue":"${analysis.musicCue}","visualIntensity":${analysis.visualIntensity}}`;
 
     const claudeResponse = await anthropic.messages.create({
@@ -134,11 +131,8 @@ Required shape:
     });
 
     const rawText = claudeResponse.content?.[0]?.text || "";
-    console.log("Claude raw:", rawText.slice(0, 200));
-
     let parsed;
     try {
-      // Extract JSON from response robustly
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
@@ -146,7 +140,6 @@ Required shape:
         throw new Error("No JSON found");
       }
     } catch {
-      // Fallback: use raw text as reply
       parsed = {
         reply: rawText.replace(/```json|```|\{[\s\S]*\}/g, "").trim() || "我收到你了。先停一下，回到身体，再继续。",
         suggestedState: analysis.detectedState || "baseline",
@@ -164,19 +157,48 @@ Required shape:
     if (!parsed.musicCue) parsed.musicCue = "427Hz";
     if (!parsed.reply) parsed.reply = "我收到你了。先停一下，回到身体，再继续。";
 
-    // ── Save to Supabase ──
+    // ── Save conversation ──
     const updatedMessages = [
       ...dbHistory,
       { role: "user", content: message, timestamp: new Date().toISOString() },
       { role: "assistant", content: parsed.reply, state: parsed.suggestedState, timestamp: new Date().toISOString() }
     ];
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("conversations")
       .update({ messages: updatedMessages, updated_at: new Date().toISOString() })
       .eq("conversation_id", activeConvId);
 
-    if (updateError) console.error("Supabase update error:", updateError.message);
+    // ── Update user profile state history ──
+    if (userId && !userId.startsWith("guest_")) {
+      try {
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("state_history")
+          .eq("user_id", userId)
+          .single();
+
+        const history = profile?.state_history || [];
+        history.push({
+          state: parsed.suggestedState,
+          timestamp: new Date().toISOString(),
+          note: analysis.analysisNote
+        });
+
+        // Keep last 500 entries
+        const trimmed = history.slice(-500);
+
+        await supabase
+          .from("user_profiles")
+          .upsert({
+            user_id: userId,
+            state_history: trimmed,
+            updated_at: new Date().toISOString()
+          });
+      } catch (profileErr) {
+        console.error("Profile update error:", profileErr.message);
+      }
+    }
 
     parsed._engine = "GPT→Claude";
     parsed.conversationId = activeConvId;
