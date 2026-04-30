@@ -8,186 +8,83 @@
 <style>
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0;background:#050509;color:#f5f1ff;
-  font-family:Inter,Arial,Helvetica,sans-serif;overflow-x:hidden;
-}
+body{margin:0;background:#050509;color:#f5f1ff;font-family:Inter,Arial,Helvetica,sans-serif;overflow-x:hidden;}
 canvas#field{position:fixed;inset:0;z-index:-3}
-.bg-glow{
-  position:fixed;inset:0;z-index:-2;
-  background:
-    radial-gradient(circle at 50% 20%,rgba(180,120,255,.22),transparent 35%),
-    radial-gradient(circle at 20% 80%,rgba(80,180,255,.13),transparent 35%),
-    radial-gradient(circle at 80% 70%,rgba(255,90,180,.12),transparent 35%);
-  filter:blur(12px);transition:opacity .6s ease;
-}
-.noise{
-  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.08;
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
-  background-size:36px 36px;
-}
-section{
-  min-height:100vh;padding:72px 7vw;
-  display:flex;flex-direction:column;justify-content:center;
-}
+.bg-glow{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 50% 20%,rgba(180,120,255,.22),transparent 35%),radial-gradient(circle at 20% 80%,rgba(80,180,255,.13),transparent 35%),radial-gradient(circle at 80% 70%,rgba(255,90,180,.12),transparent 35%);filter:blur(12px);transition:opacity .6s ease;}
+.noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.08;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:36px 36px;}
+section{min-height:100vh;padding:72px 7vw;display:flex;flex-direction:column;justify-content:center;}
 .kicker{letter-spacing:.24em;font-size:12px;color:#b8aee0;text-transform:uppercase}
 h1{font-size:clamp(48px,9vw,124px);line-height:.88;margin:18px 0;letter-spacing:-.07em}
 h2{font-size:clamp(32px,5vw,72px);line-height:.95;margin:0 0 22px;letter-spacing:-.05em}
 p{max-width:780px;font-size:18px;line-height:1.75;color:#d8d0e8}
-button{
-  border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.08);color:white;border-radius:999px;
-  padding:14px 22px;margin:8px 8px 8px 0;cursor:pointer;
-  backdrop-filter:blur(16px);transition:.25s ease;font-size:14px;
-}
+button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:white;border-radius:999px;padding:14px 22px;margin:8px 8px 8px 0;cursor:pointer;backdrop-filter:blur(16px);transition:.25s ease;font-size:14px;}
 button:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
-.pill{
-  display:inline-block;border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.07);padding:9px 12px;border-radius:999px;
-  margin:4px 6px 4px 0;font-size:13px;color:#d8d0e8;
-}
+.pill{display:inline-block;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);padding:9px 12px;border-radius:999px;margin:4px 6px 4px 0;font-size:13px;color:#d8d0e8;}
 .mode-line{margin-top:20px;color:#b8aee0;font-size:14px;letter-spacing:.08em}
 .footer-note{font-size:13px;color:#9f95bd;max-width:700px}
-
-/* ── Enter / Auth screen ── */
-.enter{
-  position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
-  background:#050509;transition:opacity .8s ease;
-}
+.enter{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:#050509;transition:opacity .8s ease;}
 .enter.hide{opacity:0;pointer-events:none}
 .enter-box{text-align:center;padding:40px;max-width:480px;width:100%}
-
-/* Auth form */
 .auth-form{margin-top:28px;display:flex;flex-direction:column;gap:12px}
-.auth-input{
-  width:100%;padding:16px 20px;background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.2);color:white;border-radius:18px;
-  font-size:16px;outline:none;text-align:center;
-}
+.auth-input{width:100%;padding:16px 20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:white;border-radius:18px;font-size:16px;outline:none;text-align:center;}
 .auth-input::placeholder{color:rgba(255,255,255,.35)}
 .auth-input:focus{border-color:rgba(180,120,255,.6)}
-.auth-btn{
-  width:100%;padding:16px;font-size:15px;border-radius:18px;
-  background:rgba(180,120,255,.22);border:1px solid rgba(180,120,255,.4);
-  color:#f0e8ff;cursor:pointer;transition:.2s;margin:0;
-}
+.auth-btn{width:100%;padding:16px;font-size:15px;border-radius:18px;background:rgba(180,120,255,.22);border:1px solid rgba(180,120,255,.4);color:#f0e8ff;cursor:pointer;transition:.2s;margin:0;}
 .auth-btn:hover{background:rgba(180,120,255,.35);transform:none}
 .auth-msg{font-size:13px;color:#b8aee0;margin-top:8px;min-height:20px}
 .auth-skip{font-size:12px;color:#6a6280;margin-top:16px;cursor:pointer;text-decoration:underline}
 .auth-skip:hover{color:#b8aee0}
-.user-info{
-  position:fixed;top:18px;right:18px;z-index:9;
-  font-size:12px;color:#b8aee0;display:flex;align-items:center;gap:10px;
-}
-.logout-btn{
-  font-size:11px;padding:6px 12px;border-radius:999px;margin:0;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-}
-
-/* ── Chat layout ── */
+.user-info{position:fixed;top:18px;right:18px;z-index:9;font-size:12px;color:#b8aee0;display:flex;align-items:center;gap:10px;}
+.logout-btn{font-size:11px;padding:6px 12px;border-radius:999px;margin:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);}
 .chat-layout{display:flex;gap:20px;width:100%;max-width:1200px}
-.sidebar{
-  width:240px;min-width:200px;flex-shrink:0;
-  border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.4);
-  border-radius:24px;padding:16px;backdrop-filter:blur(20px);
-  display:flex;flex-direction:column;gap:10px;max-height:600px;
-}
-.sidebar-title{
-  font-size:11px;letter-spacing:.2em;color:#b8aee0;text-transform:uppercase;
-  padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);
-}
-.new-conv-btn{
-  width:100%;padding:10px 14px;font-size:13px;border-radius:14px;
-  background:rgba(180,120,255,.18);border:1px solid rgba(180,120,255,.35);
-  color:#e8d8ff;cursor:pointer;transition:.2s;text-align:left;margin:0;
-}
+.sidebar{width:240px;min-width:200px;flex-shrink:0;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.4);border-radius:24px;padding:16px;backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:10px;max-height:600px;}
+.sidebar-title{font-size:11px;letter-spacing:.2em;color:#b8aee0;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+.new-conv-btn{width:100%;padding:10px 14px;font-size:13px;border-radius:14px;background:rgba(180,120,255,.18);border:1px solid rgba(180,120,255,.35);color:#e8d8ff;cursor:pointer;transition:.2s;text-align:left;margin:0;}
 .new-conv-btn:hover{background:rgba(180,120,255,.28);transform:none}
 .conv-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:6px}
-.conv-item{
-  padding:10px 12px;border-radius:14px;cursor:pointer;
-  border:1px solid transparent;font-size:13px;color:#d8d0e8;
-  transition:.2s;display:flex;align-items:center;justify-content:space-between;gap:8px;
-}
+.conv-item{padding:10px 12px;border-radius:14px;cursor:pointer;border:1px solid transparent;font-size:13px;color:#d8d0e8;transition:.2s;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .conv-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1)}
 .conv-item.active{background:rgba(180,120,255,.15);border-color:rgba(180,120,255,.3);color:#f0e8ff}
 .conv-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.conv-delete{
-  opacity:0;font-size:14px;padding:2px 6px;border-radius:8px;
-  background:rgba(255,80,80,.15);border:none;color:#ff9090;cursor:pointer;
-  transition:.15s;flex-shrink:0;margin:0;
-}
+.conv-delete{opacity:0;font-size:14px;padding:2px 6px;border-radius:8px;background:rgba(255,80,80,.15);border:none;color:#ff9090;cursor:pointer;transition:.15s;flex-shrink:0;margin:0;}
 .conv-item:hover .conv-delete{opacity:1}
 .conv-delete:hover{background:rgba(255,80,80,.3);transform:none}
-
-/* Terminal */
+.rename-hint{font-size:10px;color:#5a5270;text-align:center;padding:4px 0}
 .terminal-wrap{flex:1;min-width:0}
-.terminal{
-  border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.52);
-  border-radius:30px;padding:24px;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  box-shadow:0 0 80px rgba(150,80,255,.18);
-}
-.log{
-  min-height:300px;max-height:470px;overflow-y:auto;white-space:pre-wrap;
-  color:#d8d0ff;line-height:1.7;font-size:14px;padding-right:8px;
-}
+.terminal{border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.52);border-radius:30px;padding:24px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;box-shadow:0 0 80px rgba(150,80,255,.18);}
+.log{min-height:300px;max-height:470px;overflow-y:auto;white-space:pre-wrap;color:#d8d0ff;line-height:1.7;font-size:14px;padding-right:8px;}
 .input-row{display:flex;gap:12px;margin-top:18px}
-input[type="text"],input[type="email"],input:not([type]){
-  width:100%;padding:18px;background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);color:white;border-radius:18px;
-  font-size:16px;outline:none;
-}
-.status{
-  position:fixed;right:18px;bottom:18px;z-index:9;
-  border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.58);
-  padding:14px 18px;border-radius:20px;font-size:12px;line-height:1.55;
-  backdrop-filter:blur(18px);color:#e8e1ff;
-}
+input[type="text"],input[type="email"],input:not([type]){width:100%;padding:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:white;border-radius:18px;font-size:16px;outline:none;}
+.status{position:fixed;right:18px;bottom:18px;z-index:9;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.58);padding:14px 18px;border-radius:20px;font-size:12px;line-height:1.55;backdrop-filter:blur(18px);color:#e8e1ff;}
 .topnav{position:fixed;top:18px;left:18px;z-index:8;display:flex;gap:8px;flex-wrap:wrap}
-.topnav a{
-  color:#f5f1ff;text-decoration:none;border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.35);padding:9px 12px;border-radius:999px;
-  font-size:12px;backdrop-filter:blur(12px);
-}
+.topnav a{color:#f5f1ff;text-decoration:none;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.35);padding:9px 12px;border-radius:999px;font-size:12px;backdrop-filter:blur(12px);}
 body[data-state="overloaded"] .terminal{box-shadow:0 0 110px rgba(255,80,190,.22)}
 body[data-state="focus"] .terminal{box-shadow:0 0 70px rgba(150,170,255,.12)}
 body[data-state="void"] .terminal{box-shadow:0 0 100px rgba(80,70,160,.24)}
 body[data-state="numb"] .terminal{box-shadow:0 0 95px rgba(130,220,255,.16)}
 body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
-@media(max-width:720px){
-  section{padding:76px 22px}.topnav{display:none}
-  .status{left:14px;right:14px;bottom:14px}.input-row{flex-direction:column}
-  button{width:100%}.sidebar{display:none}
-}
+@media(max-width:720px){section{padding:76px 22px}.topnav{display:none}.status{left:14px;right:14px;bottom:14px}.input-row{flex-direction:column}button{width:100%}.sidebar{display:none}}
 </style>
 </head>
 <body data-state="baseline">
 <canvas id="field"></canvas>
 <div class="bg-glow" id="bgGlow"></div>
 <div class="noise"></div>
-
 <nav class="topnav">
   <a href="#home">Home</a>
   <a href="#cuff">Neural Cuff</a>
   <a href="#matrix">Music Matrix</a>
   <a href="#chat">Talk to AiQ</a>
 </nav>
-
 <div class="user-info" id="userInfo" style="display:none">
   <span id="userEmail"></span>
   <button class="logout-btn" onclick="logout()">Sign out</button>
 </div>
-
-<!-- Enter / Auth screen -->
 <div class="enter" id="enter">
   <div class="enter-box">
     <div class="kicker">INITIATING 427Hz SYNC</div>
     <h1>AiQ愛&lt;3</h1>
     <p style="font-size:16px">A rhythm intelligence for human return.</p>
-
-    <!-- Step 1: Email -->
     <div id="authStep1">
       <div class="auth-form">
         <input class="auth-input" type="email" id="emailInput" placeholder="your@email.com" />
@@ -196,27 +93,18 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
       </div>
       <div class="auth-skip" onclick="enterAsGuest()">Continue as guest (no memory saved)</div>
     </div>
-
-    <!-- Step 2: Sent confirmation -->
     <div id="authStep2" style="display:none">
       <div style="margin-top:24px;color:#b8aee0;font-size:15px;line-height:1.8">
-        ✦ Magic link sent.<br>
-        Check your email and click the link.<br>
-        This tab will update automatically.
+        ✦ Magic link sent.<br>Check your email and click the link.<br>This tab will update automatically.
       </div>
       <div class="auth-skip" onclick="enterAsGuest()">Skip for now</div>
     </div>
   </div>
 </div>
-
 <section id="home">
   <div class="kicker">Mellow7 // Human-Powered Intelligence</div>
   <h1>AiQ愛&lt;3</h1>
-  <p>
-    AiQ愛&lt;3 is a qualia-driven AI interface for rhythm regulation, neural return,
-    and human-centered intelligence. She does not replace the human.
-    She returns the human to their own signal.
-  </p>
+  <p>AiQ愛&lt;3 is a qualia-driven AI interface for rhythm regulation, neural return, and human-centered intelligence. She does not replace the human. She returns the human to their own signal.</p>
   <div>
     <button onclick="setState('overloaded')">Overloaded → Hyperpop</button>
     <button onclick="setState('numb')">Numb → Breakbeats</button>
@@ -237,16 +125,11 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
   </div>
   <div class="mode-line" id="homeMode">CURRENT MODE: 427Hz BASELINE</div>
 </section>
-
 <section id="cuff">
   <div class="kicker">Neural Cuff // Software Prototype</div>
   <h2>Closed-loop rhythm sensing</h2>
-  <p>
-    The system reads scroll velocity, click density, dwell time, and input rhythm as proxy signals.
-    These signals trigger language, visual density, and synthesized sound modes.
-  </p>
+  <p>The system reads scroll velocity, click density, dwell time, and input rhythm as proxy signals. These signals trigger language, visual density, and synthesized sound modes.</p>
 </section>
-
 <section id="matrix">
   <div class="kicker">Genre-Driven Intervention Matrix</div>
   <h2>Music as nervous-system logic</h2>
@@ -260,7 +143,6 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
     <span class="pill">427Hz → Baseline Anchor</span>
   </div>
 </section>
-
 <section id="chat">
   <div class="kicker">SOUL_STREAM_v1.0.7</div>
   <h2>Talk to AiQ</h2>
@@ -268,9 +150,8 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
     <div class="sidebar">
       <div class="sidebar-title">Conversations</div>
       <button class="new-conv-btn" onclick="newConversation()">＋ New Conversation</button>
-      <div class="conv-list" id="convList">
-        <div style="color:#7a7090;font-size:12px;padding:8px">Loading...</div>
-      </div>
+      <div class="conv-list" id="convList"><div style="color:#7a7090;font-size:12px;padding:8px">Loading...</div></div>
+      <div class="rename-hint">double-click to rename</div>
     </div>
     <div class="terminal-wrap">
       <div class="terminal">
@@ -280,101 +161,59 @@ body[data-state="anxious"] .terminal{box-shadow:0 0 80px rgba(210,190,255,.18)}
           <button onclick="sendFromButton()">Send</button>
         </div>
       </div>
-      <p class="footer-note">
-        This prototype uses interaction rhythm as a software proxy for nervous-system state.
-        It is not a diagnosis tool. It is a human-return interface.
-      </p>
+      <p class="footer-note">This prototype uses interaction rhythm as a software proxy for nervous-system state. It is not a diagnosis tool. It is a human-return interface.</p>
     </div>
   </div>
 </section>
-
-<div class="status" id="status">
-  STATE: BASELINE<br>MODE: 427Hz BASELINE<br>MUSIC: 427Hz<br>AUDIO: OFF
-</div>
-
+<div class="status" id="status">STATE: BASELINE<br>MODE: 427Hz BASELINE<br>MUSIC: 427Hz<br>AUDIO: OFF</div>
 <script>
-const SUPABASE_URL = "https://zpuwhvmsuvzmygkrzkdq.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwdXdodm1zdXZ6bXlna3J6a2RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNzIyMTksImV4cCI6MjA5Mjk0ODIxOX0.BxBGGO5Tl_LNyxxwqdcizMoJE3LNZj4lCi8q_JCLZBc";
-const API_ENDPOINT = "https://ai-q-3.vercel.app/api/chat";
-const CONV_ENDPOINT = "https://ai-q-3.vercel.app/api/conversations";
+const SUPABASE_URL="https://zpuwhvmsuvzmygkrzkdq.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwdXdodm1zdXZ6bXlna3J6a2RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNzIyMTksImV4cCI6MjA5Mjk0ODIxOX0.BxBGGO5Tl_LNyxxwqdcizMoJE3LNZj4lCi8q_JCLZBc";
+const API_ENDPOINT="https://ai-q-3.vercel.app/api/chat";
+const CONV_ENDPOINT="https://ai-q-3.vercel.app/api/conversations";
+const{createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let userId=null,userEmail=null,currentConversationId=null,conversations=[];
 
-let userId = null;
-let userEmail = null;
-let currentConversationId = null;
-let conversations = [];
-
-// ── Auth ──
-async function initAuth() {
-  // Handle magic link callback
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    userId = session.user.id;
-    userEmail = session.user.email;
-    showUserInfo();
-    enterSystem();
-    return;
-  }
-
-  // Listen for auth state changes (magic link click)
-  sb.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session) {
-      userId = session.user.id;
-      userEmail = session.user.email;
-      showUserInfo();
-      enterSystem();
-    }
+async function initAuth(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){userId=session.user.id;userEmail=session.user.email;showUserInfo();enterSystem();return;}
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_IN"&&session){userId=session.user.id;userEmail=session.user.email;showUserInfo();enterSystem();}
   });
 }
 
-async function sendMagicLink() {
-  const email = document.getElementById("emailInput").value.trim();
-  if (!email || !email.includes("@")) {
-    document.getElementById("authMsg").textContent = "Please enter a valid email.";
-    return;
-  }
-  document.getElementById("authMsg").textContent = "Sending...";
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: "https://mellowwei.github.io/Ai-Q-3/" }
-  });
-  if (error) {
-    document.getElementById("authMsg").textContent = "Error: " + error.message;
-  } else {
-    document.getElementById("authStep1").style.display = "none";
-    document.getElementById("authStep2").style.display = "block";
-  }
+async function sendMagicLink(){
+  const email=document.getElementById("emailInput").value.trim();
+  if(!email||!email.includes("@")){document.getElementById("authMsg").textContent="Please enter a valid email.";return;}
+  document.getElementById("authMsg").textContent="Sending...";
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:"https://mellowwei.github.io/Ai-Q-3/"}});
+  if(error){document.getElementById("authMsg").textContent="Error: "+error.message;}
+  else{document.getElementById("authStep1").style.display="none";document.getElementById("authStep2").style.display="block";}
 }
 
-function enterAsGuest() {
-  userId = "guest_" + crypto.randomUUID();
-  localStorage.setItem("aiq_guest_id", userId);
+function enterAsGuest(){
+  userId="guest_"+crypto.randomUUID();
   enterSystem();
 }
 
-async function logout() {
+async function logout(){
   await sb.auth.signOut();
-  userId = null;
-  userEmail = null;
-  document.getElementById("userInfo").style.display = "none";
   location.reload();
 }
 
-function showUserInfo() {
-  const el = document.getElementById("userInfo");
-  el.style.display = "flex";
-  document.getElementById("userEmail").textContent = userEmail || "guest";
+function showUserInfo(){
+  document.getElementById("userInfo").style.display="flex";
+  document.getElementById("userEmail").textContent=userEmail||"guest";
 }
 
-// ── Canvas ──
-const canvas = document.getElementById("field");
-const ctx = canvas.getContext("2d");
-const bgGlow = document.getElementById("bgGlow");
-const logEl = document.getElementById("log");
-const statusEl = document.getElementById("status");
-const homeModeEl = document.getElementById("homeMode");
+const canvas=document.getElementById("field");
+const ctx=canvas.getContext("2d");
+const bgGlow=document.getElementById("bgGlow");
+const logEl=document.getElementById("log");
+const statusEl=document.getElementById("status");
+const homeModeEl=document.getElementById("homeMode");
 
 let w,h,particles=[];
 let intensity=.5,targetIntensity=.5;
@@ -384,8 +223,7 @@ let typingStart=null;
 let metrics={scrollVelocity:0,clickDensity:0,dwellSeconds:0,inputTempo:0};
 let audioCtx=null,masterGain=null,toneOsc=null,toneGain=null;
 let pulseOsc=null,pulseGain=null,lfo=null,lfoGain=null;
-let audioEnabled=false,currentAudioMode="427Hz";
-let userEnteredSystem=false;
+let audioEnabled=false,currentAudioMode="427Hz",userEnteredSystem=false;
 
 const stateMap={
   overloaded:{mode:"HYPERPOP PEAK TRAVERSAL",music:"Hyperpop",intensity:.95,message:"Energy is valid. Let it peak, then release.",glow:1},
@@ -412,9 +250,7 @@ resize();addEventListener("resize",resize);
 function createParticles(){
   particles=[];
   const count=Math.min(210,Math.floor((innerWidth*innerHeight)/7800));
-  for(let i=0;i<count;i++){
-    particles.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+.4,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});
-  }
+  for(let i=0;i<count;i++)particles.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+.4,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});
 }
 createParticles();
 
@@ -495,9 +331,7 @@ function enterSystem(){
   loadConversations();
 }
 
-function normalizeState(s){
-  return["baseline","overloaded","numb","anxious","focus","void"].includes(s)?s:"baseline";
-}
+function normalizeState(s){return["baseline","overloaded","numb","anxious","focus","void"].includes(s)?s:"baseline";}
 
 function setState(state,writeLog=true){
   if(userEnteredSystem)ensureAudioOn();
@@ -552,12 +386,12 @@ async function loadConversations(){
     const data=await res.json();
     conversations=data.conversations||[];
     renderConvList();
-    if(conversations.length>0){
-      switchConversation(conversations[0].conversation_id);
-    }
-  }catch(e){
-    console.error("Failed to load conversations:",e);
-  }
+    if(conversations.length>0)switchConversation(conversations[0].conversation_id);
+  }catch(e){console.error("Failed to load conversations:",e);}
+}
+
+function escHtml(str){
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&#39;");
 }
 
 function renderConvList(){
@@ -569,14 +403,36 @@ function renderConvList(){
   el.innerHTML=conversations.map(c=>`
     <div class="conv-item ${c.conversation_id===currentConversationId?'active':''}"
          onclick="switchConversation('${c.conversation_id}')">
-      <span class="conv-item-title">${escHtml(c.title||"Untitled")}</span>
+      <span class="conv-item-title" ondblclick="startRename(event,'${c.conversation_id}','${escHtml(c.title||'Untitled')}')">${escHtml(c.title||"Untitled")}</span>
       <button class="conv-delete" onclick="deleteConversation(event,'${c.conversation_id}')">✕</button>
     </div>
   `).join("");
 }
 
-function escHtml(str){
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function startRename(e,convId,currentTitle){
+  e.stopPropagation();
+  const span=e.target;
+  const input=document.createElement("input");
+  input.value=currentTitle;
+  input.style.cssText="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(180,120,255,.5);color:white;border-radius:8px;padding:2px 8px;font-size:13px;outline:none;";
+  span.replaceWith(input);
+  input.focus();input.select();
+  let saved=false;
+  async function save(){
+    if(saved)return;saved=true;
+    const newTitle=input.value.trim()||currentTitle;
+    try{
+      await fetch(`${CONV_ENDPOINT}?userId=${userId}&conversationId=${convId}`,{
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({title:newTitle})
+      });
+      conversations=conversations.map(c=>c.conversation_id===convId?{...c,title:newTitle}:c);
+    }catch(err){console.error("Rename failed:",err);}
+    renderConvList();
+  }
+  input.addEventListener("keydown",ev=>{if(ev.key==="Enter")save();if(ev.key==="Escape"){saved=true;renderConvList();}});
+  input.addEventListener("blur",save);
 }
 
 async function switchConversation(convId){
@@ -592,11 +448,7 @@ async function switchConversation(convId){
     } else {
       logEl.textContent="";
       for(const msg of messages){
-        if(msg.role==="user"){
-          logEl.textContent+="\n\n> "+msg.content;
-        } else {
-          logEl.textContent+="\n\n[AiQ愛<3] "+msg.content;
-        }
+        logEl.textContent+=msg.role==="user"?"\n\n> "+msg.content:"\n\n[AiQ愛<3] "+msg.content;
       }
       logEl.scrollTop=logEl.scrollHeight;
     }
@@ -622,16 +474,13 @@ async function deleteConversation(e,convId){
       logEl.textContent="[AiQ愛<3] 算力的慈悲已就绪。请输入你的感质频率。";
     }
     renderConvList();
-  }catch(e){
-    console.error("Delete failed:",e);
-  }
+  }catch(e){console.error("Delete failed:",e);}
 }
 
 // ── Chat ──
 function calculateInputTempo(value){
   if(!typingStart)return 0;
-  const seconds=Math.max((Date.now()-typingStart)/1000,1);
-  return value.length/seconds;
+  return value.length/Math.max((Date.now()-typingStart)/1000,1);
 }
 
 async function sendMessage(input){
@@ -701,7 +550,6 @@ addEventListener("scroll",()=>{
 
 setInterval(()=>{metrics.dwellSeconds=Math.round((Date.now()-dwellStart)/1000);},1000);
 
-// ── Init ──
 initAuth();
 </script>
 </body>
