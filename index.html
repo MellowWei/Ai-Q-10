@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AiAiQ&lt;10 | AiQ愛&lt;3 × AiQ愛&lt;7</title>
+<title>AiAiQ&lt;10 | Human Return Portal</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
@@ -13,14 +13,16 @@
 :root{
   --bg:#03020a;
   --ink:#fff4ff;
-  --muted:#c7b8dc;
+  --muted:#cdbfe0;
   --dim:#8f78c7;
   --pink:#ff4fd8;
-  --rose:#ff8bdc;
+  --rose:#ff9ce6;
   --violet:#8b5cff;
   --cyan:#62f7ff;
-  --green:#1ed760;
   --gold:#ffe36e;
+  --green:#1ed760;
+  --glass:rgba(255,255,255,.045);
+  --line:rgba(255,255,255,.12);
 }
 
 *{
@@ -30,34 +32,37 @@
 }
 
 html{
+  margin:0;
+  padding:0;
   scroll-behavior:smooth;
   background:var(--bg);
 }
 
 body{
   margin:0;
-  color:var(--ink);
-  font-family:'Inter',sans-serif;
+  min-height:100vh;
   overflow-x:hidden;
+  color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:
-    radial-gradient(circle at 50% -10%,rgba(255,79,216,.16),transparent 36%),
-    radial-gradient(circle at 8% 92%,rgba(139,92,255,.16),transparent 34%),
-    radial-gradient(circle at 95% 35%,rgba(98,247,255,.075),transparent 28%),
-    linear-gradient(180deg,#03020a 0%,#070413 48%,#03020a 100%);
+    radial-gradient(circle at 50% -10%,rgba(255,79,216,.15),transparent 34%),
+    radial-gradient(circle at 6% 88%,rgba(98,247,255,.10),transparent 32%),
+    radial-gradient(circle at 95% 38%,rgba(139,92,255,.14),transparent 36%),
+    linear-gradient(180deg,#03020a 0%,#080416 50%,#03020a 100%);
 }
 
 body::before{
   content:"";
   position:fixed;
   inset:0;
-  z-index:-6;
+  z-index:-8;
   pointer-events:none;
   background-image:
     linear-gradient(rgba(255,79,216,.045) 1px,transparent 1px),
     linear-gradient(90deg,rgba(98,247,255,.035) 1px,transparent 1px);
   background-size:56px 56px;
-  mask-image:radial-gradient(circle at 50% 35%,black,transparent 74%);
-  opacity:.5;
+  mask-image:radial-gradient(circle at 50% 35%,black,transparent 75%);
+  opacity:.52;
   animation:gridDrift 18s linear infinite;
 }
 
@@ -65,7 +70,7 @@ body::after{
   content:"";
   position:fixed;
   inset:0;
-  z-index:-5;
+  z-index:-7;
   pointer-events:none;
   background:conic-gradient(
     from 210deg at 50% 50%,
@@ -77,7 +82,7 @@ body::after{
   );
   filter:blur(34px);
   opacity:.72;
-  animation:plasmaTurn 22s linear infinite;
+  animation:plasmaTurn 24s linear infinite;
 }
 
 @keyframes gridDrift{
@@ -93,55 +98,46 @@ body::after{
 #portalStarfield{
   position:fixed;
   inset:0;
-  z-index:-4;
+  z-index:-6;
   width:100vw;
   height:100vh;
   pointer-events:none;
   mix-blend-mode:screen;
-  opacity:.95;
+  opacity:.98;
 }
 
-canvas#field{
+#field{
   position:fixed;
   inset:0;
-  z-index:-3;
+  z-index:-5;
+  pointer-events:none;
+  opacity:.58;
   filter:drop-shadow(0 0 8px rgba(255,79,216,.35));
-  opacity:.72;
 }
 
 .bg-glow{
   position:fixed;
   inset:0;
-  z-index:-2;
+  z-index:-4;
+  pointer-events:none;
   background:
-    radial-gradient(ellipse at 50% 0%,rgba(255,79,216,.16),transparent 58%),
-    radial-gradient(ellipse at 20% 85%,rgba(139,92,255,.14),transparent 48%),
+    radial-gradient(ellipse at 50% 0%,rgba(255,79,216,.14),transparent 58%),
+    radial-gradient(ellipse at 18% 84%,rgba(139,92,255,.14),transparent 48%),
     radial-gradient(ellipse at 100% 60%,rgba(98,247,255,.08),transparent 42%),
-    radial-gradient(ellipse at 65% 45%,rgba(255,139,220,.075),transparent 55%);
+    radial-gradient(ellipse at 65% 45%,rgba(255,139,220,.07),transparent 55%);
   transition:opacity .8s ease,filter .8s ease;
   filter:saturate(1.25);
-}
-
-.noise{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  opacity:.075;
-  mix-blend-mode:screen;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size:256px;
 }
 
 .vapor-layer{
   position:fixed;
   inset:-12%;
-  z-index:-1;
+  z-index:-3;
   pointer-events:none;
   background:
-    radial-gradient(ellipse at 20% 80%,rgba(255,79,216,.13),transparent 30%),
-    radial-gradient(ellipse at 75% 70%,rgba(139,92,255,.12),transparent 34%),
-    radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.045),transparent 45%);
+    radial-gradient(ellipse at 20% 80%,rgba(255,79,216,.12),transparent 30%),
+    radial-gradient(ellipse at 75% 70%,rgba(139,92,255,.11),transparent 34%),
+    radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.04),transparent 45%);
   filter:blur(42px);
   opacity:.75;
   animation:vaporFloat 14s ease-in-out infinite alternate;
@@ -152,12 +148,23 @@ canvas#field{
   100%{transform:translate3d(3%,-3%,0) scale(1.08)}
 }
 
+.noise{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.07;
+  mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:256px;
+}
+
 .scanline-layer{
   position:fixed;
   inset:0;
   z-index:100;
   pointer-events:none;
-  opacity:.12;
+  opacity:.11;
   mix-blend-mode:soft-light;
   background:repeating-linear-gradient(
     to bottom,
@@ -182,6 +189,19 @@ canvas#field{
   transition:opacity .25s ease;
 }
 
+/* IMPORTANT: kill any old giant entrance if an older block remains by accident */
+.enter,
+#enter.enter,
+body > .enter{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  height:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+
 /* NAV */
 .topnav{
   position:fixed;
@@ -189,7 +209,7 @@ canvas#field{
   left:20px;
   z-index:30;
   display:flex;
-  gap:6px;
+  gap:8px;
   flex-wrap:wrap;
 }
 
@@ -203,7 +223,7 @@ canvas#field{
   font-size:13px;
   backdrop-filter:blur(22px);
   transition:.22s ease;
-  font-weight:700;
+  font-weight:800;
   letter-spacing:.035em;
   box-shadow:0 0 22px rgba(139,92,255,.055);
 }
@@ -267,15 +287,15 @@ canvas#field{
   width:min(320px,calc(100vw - 32px));
   padding:18px;
   border-radius:22px;
-  border:1px solid rgba(255,79,216,.22);
+  border:1px solid rgba(255,79,216,.26);
   background:
-    radial-gradient(circle at 0% 0%,rgba(255,79,216,.16),transparent 42%),
-    radial-gradient(circle at 100% 100%,rgba(98,247,255,.09),transparent 42%),
-    rgba(8,5,22,.72);
+    radial-gradient(circle at 0% 0%,rgba(255,79,216,.18),transparent 42%),
+    radial-gradient(circle at 100% 100%,rgba(98,247,255,.10),transparent 42%),
+    rgba(8,5,22,.76);
   backdrop-filter:blur(26px);
   box-shadow:
-    0 0 42px rgba(255,79,216,.14),
-    inset 0 0 28px rgba(255,255,255,.025);
+    0 0 42px rgba(255,79,216,.16),
+    inset 0 0 28px rgba(255,255,255,.03);
   transition:.45s ease;
 }
 
@@ -341,7 +361,7 @@ canvas#field{
 /* GLOBAL */
 section{
   min-height:100vh;
-  padding:98px 7vw 86px;
+  padding:94px 7vw 86px;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -448,7 +468,9 @@ button:hover{
 
 /* HOME PORTAL */
 #home{
+  justify-content:flex-start;
   overflow:hidden;
+  padding-top:112px;
 }
 
 #home::after{
@@ -457,12 +479,17 @@ button:hover{
   inset:0;
   pointer-events:none;
   background:
-    radial-gradient(circle at 18% 72%,rgba(98,247,255,.09),transparent 30%),
-    radial-gradient(circle at 78% 24%,rgba(255,79,216,.11),transparent 28%),
+    radial-gradient(circle at 18% 72%,rgba(98,247,255,.10),transparent 30%),
+    radial-gradient(circle at 78% 24%,rgba(255,79,216,.12),transparent 28%),
     radial-gradient(circle at 62% 80%,rgba(255,236,139,.06),transparent 24%);
   filter:blur(18px);
-  opacity:.85;
+  opacity:.88;
   z-index:0;
+}
+
+#home > *{
+  position:relative;
+  z-index:2;
 }
 
 .home-portal{
@@ -474,11 +501,11 @@ button:hover{
 .portal-meta{
   display:flex;
   flex-wrap:wrap;
-  gap:16px 24px;
+  gap:14px 24px;
   border-top:1px solid rgba(255,255,255,.08);
   border-bottom:1px solid rgba(255,255,255,.08);
-  padding:20px 0;
-  margin-bottom:46px;
+  padding:18px 0;
+  margin-bottom:40px;
   color:#fff4ff;
   font-size:13px;
   letter-spacing:.22em;
@@ -504,7 +531,7 @@ button:hover{
 }
 
 .portal-title{
-  font-family:Georgia, 'Times New Roman', serif;
+  font-family:Georgia,'Times New Roman',serif;
   font-size:clamp(74px,9vw,132px);
   line-height:.78;
   letter-spacing:-.075em;
@@ -561,7 +588,7 @@ button:hover{
 }
 
 .freq-line{
-  margin-top:76px;
+  margin-top:56px;
   display:grid;
   grid-template-columns:110px 1fr 110px;
   align-items:center;
@@ -596,7 +623,7 @@ button:hover{
 }
 
 .identity-card{
-  margin-top:64px;
+  margin-top:56px;
   max-width:980px;
   border:1px solid rgba(255,255,255,.1);
   border-radius:16px;
@@ -616,7 +643,7 @@ button:hover{
 
 .identity-name{
   margin-top:28px;
-  font-family:Georgia, 'Times New Roman', serif;
+  font-family:Georgia,'Times New Roman',serif;
   font-size:48px;
   line-height:1;
   color:#fff4ff;
@@ -624,7 +651,7 @@ button:hover{
 
 .identity-roman{
   margin-top:14px;
-  font-family:Georgia, 'Times New Roman', serif;
+  font-family:Georgia,'Times New Roman',serif;
   font-style:italic;
   font-size:30px;
   color:#78ffe8;
@@ -1392,6 +1419,10 @@ body.aiq-pulse .chat-window{
     padding:84px 18px 112px;
   }
 
+  #home{
+    padding-top:96px;
+  }
+
   p{
     font-size:15px;
   }
@@ -1664,7 +1695,7 @@ body.aiq-pulse .chat-window{
   <button class="spotify-btn" id="spotifyBtn" onclick="handleSpotifyClick()">♫ Spotify</button>
 </div>
 
-<div class="portal-auth-dock" id="enter">
+<div class="portal-auth-dock" id="authDock">
   <div class="dock-kicker">427Hz · HUMAN RETURN PROTOCOL</div>
   <div class="dock-title">AiAiQ&lt;10</div>
   <div class="dock-sub">Dual AI Portal · Human Return System</div>
@@ -1893,15 +1924,18 @@ body.aiq-pulse .chat-window{
 
 <script>
 const SUPABASE_URL = "https://zpuwhvmsuvzmygkrzkdq.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwdXdodm1zdXZ6bXlna3J6a2RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNzIyMTksImV4cCI6MjA5Mjk0ODIxOX0.BxBGGO5Tl_LNyxxwqdcizMoJE3LNZj4lCi8q_JCLZBc";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
 const API_ENDPOINT = "https://ai-q-3.vercel.app/api/chat";
 const CONV_ENDPOINT = "https://ai-q-3.vercel.app/api/conversations";
 const PROFILE_ENDPOINT = "https://ai-q-3.vercel.app/api/profile";
 const SPOTIFY_ENDPOINT = "https://ai-q-3.vercel.app/api/spotify";
 
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sb = null;
+if (window.supabase && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
+  const { createClient } = supabase;
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 
 let userId = null;
 let userEmail = null;
@@ -1950,6 +1984,11 @@ window.addEventListener("mouseenter", () => {
 });
 
 async function initAuth(){
+  if(!sb){
+    console.warn("Supabase anon key missing. Guest mode still works.");
+    return;
+  }
+
   const { data:{ session } } = await sb.auth.getSession();
 
   if(session){
@@ -1971,6 +2010,11 @@ async function initAuth(){
 }
 
 async function signInWithGoogle(){
+  if(!sb){
+    document.getElementById("authMsg").textContent = "Supabase key missing. Paste your anon key first.";
+    return;
+  }
+
   document.getElementById("authMsg").textContent = "Redirecting...";
 
   const { error } = await sb.auth.signInWithOAuth({
@@ -1990,7 +2034,7 @@ function enterAsGuest(){
 }
 
 async function logout(){
-  await sb.auth.signOut();
+  if(sb) await sb.auth.signOut();
   location.reload();
 }
 
@@ -2282,7 +2326,9 @@ function enterSystem(){
   if(userEnteredSystem) return;
 
   userEnteredSystem = true;
-  document.getElementById("enter").classList.add("hide");
+
+  const dock = document.getElementById("authDock");
+  if(dock) dock.classList.add("hide");
 
   initAudio();
   audioEnabled = true;
@@ -3085,11 +3131,11 @@ async function refreshSpotifyToken(){
   }
 }
 
-/* ─────────────────────────────
-   Dynamic Portal Starfield
-   particles + moving stars + Big Dipper / 北斗七星
-───────────────────────────── */
+/* Dynamic Portal Starfield: particles + moving stars + Big Dipper / 北斗七星 */
 (function initPortalStarfield(){
+  const old = document.getElementById("portalStarfield");
+  if(old) old.remove();
+
   const starCanvas = document.createElement("canvas");
   starCanvas.id = "portalStarfield";
   document.body.prepend(starCanvas);
@@ -3102,8 +3148,9 @@ async function refreshSpotifyToken(){
   let time = 0;
 
   function resizeStarfield(){
-    sw = starCanvas.width = window.innerWidth * devicePixelRatio;
-    sh = starCanvas.height = window.innerHeight * devicePixelRatio;
+    const dpr = window.devicePixelRatio || 1;
+    sw = starCanvas.width = Math.floor(window.innerWidth * dpr);
+    sh = starCanvas.height = Math.floor(window.innerHeight * dpr);
     starCanvas.style.width = window.innerWidth + "px";
     starCanvas.style.height = window.innerHeight + "px";
     buildStars();
@@ -3114,15 +3161,16 @@ async function refreshSpotifyToken(){
   }
 
   function buildStars(){
-    const count = Math.min(170, Math.floor((window.innerWidth * window.innerHeight) / 7200));
-    const dustCount = Math.min(90, Math.floor((window.innerWidth * window.innerHeight) / 13000));
+    const dpr = window.devicePixelRatio || 1;
+    const count = Math.min(190, Math.floor((window.innerWidth * window.innerHeight) / 6500));
+    const dustCount = Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 10500));
 
     stars = Array.from({length:count}, () => ({
       x:rand(0,sw),
       y:rand(0,sh),
-      r:rand(.45,1.75) * devicePixelRatio,
-      vx:rand(-.035,.035) * devicePixelRatio,
-      vy:rand(-.025,.04) * devicePixelRatio,
+      r:rand(.45,1.8) * dpr,
+      vx:rand(-.04,.04) * dpr,
+      vy:rand(-.03,.045) * dpr,
       pulse:rand(0,Math.PI * 2),
       hue:Math.random() > .62 ? "cyan" : Math.random() > .5 ? "pink" : "white"
     }));
@@ -3130,22 +3178,23 @@ async function refreshSpotifyToken(){
     dust = Array.from({length:dustCount}, () => ({
       x:rand(0,sw),
       y:rand(0,sh),
-      r:rand(.25,.7) * devicePixelRatio,
-      vx:rand(-.07,.07) * devicePixelRatio,
-      vy:rand(-.04,.065) * devicePixelRatio,
-      a:rand(.08,.24)
+      r:rand(.22,.72) * dpr,
+      vx:rand(-.075,.075) * dpr,
+      vy:rand(-.04,.07) * dpr,
+      a:rand(.08,.26)
     }));
   }
 
   function starColor(kind, alpha){
     if(kind === "cyan") return `rgba(98,247,255,${alpha})`;
     if(kind === "pink") return `rgba(255,79,216,${alpha})`;
+    if(kind === "gold") return `rgba(255,227,110,${alpha})`;
     return `rgba(255,244,255,${alpha})`;
   }
 
   function drawGlowStar(x,y,r,kind,alpha){
     sctx.beginPath();
-    sctx.arc(x,y,r * 5.2,0,Math.PI * 2);
+    sctx.arc(x,y,r * 5.4,0,Math.PI * 2);
     sctx.fillStyle = starColor(kind,alpha * .13);
     sctx.fill();
 
@@ -3156,18 +3205,19 @@ async function refreshSpotifyToken(){
 
     if(alpha > .55){
       sctx.beginPath();
-      sctx.moveTo(x - r * 7,y);
-      sctx.lineTo(x + r * 7,y);
-      sctx.moveTo(x,y - r * 7);
-      sctx.lineTo(x,y + r * 7);
-      sctx.strokeStyle = starColor(kind,alpha * .44);
-      sctx.lineWidth = Math.max(.7, r * .38);
+      sctx.moveTo(x - r * 7.5,y);
+      sctx.lineTo(x + r * 7.5,y);
+      sctx.moveTo(x,y - r * 7.5);
+      sctx.lineTo(x,y + r * 7.5);
+      sctx.strokeStyle = starColor(kind,alpha * .42);
+      sctx.lineWidth = Math.max(.7, r * .36);
       sctx.stroke();
     }
   }
 
   function drawConnections(){
-    const maxD = 118 * devicePixelRatio;
+    const dpr = window.devicePixelRatio || 1;
+    const maxD = 120 * dpr;
 
     for(let i = 0; i < stars.length; i++){
       for(let j = i + 1; j < stars.length; j++){
@@ -3178,80 +3228,83 @@ async function refreshSpotifyToken(){
         const d = Math.sqrt(dx * dx + dy * dy);
 
         if(d < maxD){
-          const alpha = (1 - d / maxD) * .115;
+          const alpha = (1 - d / maxD) * .11;
           sctx.beginPath();
           sctx.moveTo(a.x,a.y);
           sctx.lineTo(b.x,b.y);
           sctx.strokeStyle = `rgba(255,139,220,${alpha})`;
-          sctx.lineWidth = .7 * devicePixelRatio;
+          sctx.lineWidth = .7 * dpr;
           sctx.stroke();
         }
       }
     }
   }
 
-  function drawBigDipper(){
-    const driftX = Math.sin(time * .35) * 10 * devicePixelRatio;
-    const driftY = Math.cos(time * .28) * 7 * devicePixelRatio;
-
-    const pts = [
-      [.645,.235],
-      [.690,.218],
-      [.735,.242],
-      [.775,.285],
-      [.820,.265],
-      [.865,.313],
-      [.915,.290]
-    ].map(([x,y],i) => ({
-      x:x * sw + driftX + Math.sin(time + i) * 3 * devicePixelRatio,
-      y:y * sh + driftY + Math.cos(time * .8 + i) * 3 * devicePixelRatio
-    }));
-
-    sctx.beginPath();
-    pts.forEach((p,i) => {
-      if(i === 0) sctx.moveTo(p.x,p.y);
-      else sctx.lineTo(p.x,p.y);
-    });
-    sctx.strokeStyle = "rgba(98,247,255,.22)";
-    sctx.lineWidth = 7 * devicePixelRatio;
-    sctx.shadowBlur = 22 * devicePixelRatio;
-    sctx.shadowColor = "rgba(98,247,255,.55)";
-    sctx.stroke();
-
-    sctx.shadowBlur = 0;
-    sctx.beginPath();
-    pts.forEach((p,i) => {
-      if(i === 0) sctx.moveTo(p.x,p.y);
-      else sctx.lineTo(p.x,p.y);
-    });
-    sctx.strokeStyle = "rgba(255,244,255,.72)";
-    sctx.lineWidth = 1.25 * devicePixelRatio;
-    sctx.stroke();
-
-    pts.forEach((p,i) => {
-      const kind = i % 2 === 0 ? "cyan" : "pink";
-      drawGlowStar(p.x,p.y,(i === 0 || i === 3 ? 2.25 : 1.75) * devicePixelRatio,kind,.9);
-    });
-
-    sctx.font = `${10 * devicePixelRatio}px Inter, sans-serif`;
-    sctx.fillStyle = "rgba(189,166,255,.62)";
-    sctx.fillText("北斗七星 · BIG DIPPER", pts[0].x - 10 * devicePixelRatio, pts[0].y - 24 * devicePixelRatio);
-  }
-
   function drawNebula(){
     const g1 = sctx.createRadialGradient(sw * .18, sh * .72, 0, sw * .18, sh * .72, sw * .38);
-    g1.addColorStop(0,"rgba(98,247,255,.08)");
+    g1.addColorStop(0,"rgba(98,247,255,.085)");
     g1.addColorStop(.38,"rgba(139,92,255,.04)");
     g1.addColorStop(1,"transparent");
     sctx.fillStyle = g1;
     sctx.fillRect(0,0,sw,sh);
 
     const g2 = sctx.createRadialGradient(sw * .78, sh * .28, 0, sw * .78, sh * .28, sw * .42);
-    g2.addColorStop(0,"rgba(255,79,216,.09)");
+    g2.addColorStop(0,"rgba(255,79,216,.10)");
     g2.addColorStop(.45,"rgba(255,139,220,.035)");
     g2.addColorStop(1,"transparent");
     sctx.fillStyle = g2;
     sctx.fillRect(0,0,sw,sh);
+  }
+
+  function drawBigDipper(){
+    const dpr = window.devicePixelRatio || 1;
+    const driftX = Math.sin(time * .35) * 11 * dpr;
+    const driftY = Math.cos(time * .28) * 8 * dpr;
+
+    const pts = [
+      [.610,.180],
+      [.655,.160],
+      [.705,.190],
+      [.750,.242],
+      [.800,.220],
+      [.850,.275],
+      [.905,.248]
+    ].map(([x,y],i) => ({
+      x:x * sw + driftX + Math.sin(time + i) * 3.2 * dpr,
+      y:y * sh + driftY + Math.cos(time * .8 + i) * 3.2 * dpr
+    }));
+
+    sctx.save();
+    sctx.beginPath();
+    pts.forEach((p,i) => {
+      if(i === 0) sctx.moveTo(p.x,p.y);
+      else sctx.lineTo(p.x,p.y);
+    });
+    sctx.strokeStyle = "rgba(98,247,255,.20)";
+    sctx.lineWidth = 8 * dpr;
+    sctx.shadowBlur = 26 * dpr;
+    sctx.shadowColor = "rgba(98,247,255,.55)";
+    sctx.stroke();
+    sctx.restore();
+
+    sctx.beginPath();
+    pts.forEach((p,i) => {
+      if(i === 0) sctx.moveTo(p.x,p.y);
+      else sctx.lineTo(p.x,p.y);
+    });
+    sctx.strokeStyle = "rgba(255,244,255,.76)";
+    sctx.lineWidth = 1.35 * dpr;
+    sctx.stroke();
+
+    pts.forEach((p,i) => {
+      const kind = i === 3 ? "gold" : i % 2 === 0 ? "cyan" : "pink";
+      const size = (i === 0 || i === 3 || i === 6 ? 2.35 : 1.75) * dpr;
+      drawGlowStar(p.x,p.y,size,kind,.92);
+    });
+
+    sctx.font = `${10 * dpr}px Inter, sans-serif`;
+    sctx.fillStyle = "rgba(189,166,255,.68)";
+    sctx.fillText("北斗七星 · BIG DIPPER", pts[0].x - 8 * dpr, pts[0].y - 24 * dpr);
   }
 
   function animateStarfield(){
