@@ -1,97 +1,279 @@
-:root {
-    --bg-black: #030105;
-    --cyan-glow: #00f3ff;
-    --pink-glow: #ff00ff;
-    --purple-main: #bc13fe;
-    --glass: rgba(255, 255, 255, 0.02);
-    --font-main: 'Inter', 'Orbitron', sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AiQ愛<3 × AiQ愛<7 | Mellow7</title>
 
-body {
-    background: var(--bg-black);
-    color: #fff;
-    font-family: var(--font-main);
-    margin: 0;
-    overflow-x: hidden;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="style.css" />
+</head>
 
-/* 独角兽极光背景 */
-.aurora-bg {
-    position: fixed;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(188, 19, 254, 0.1) 0%, rgba(0, 243, 255, 0.05) 30%, transparent 70%);
-    filter: blur(120px);
-    z-index: -1;
-    animation: aurora-move 40s infinite linear;
-}
+<body data-state="baseline">
+<canvas id="field"></canvas>
+<div class="bg-glow" id="bgGlow"></div>
+<div class="noise"></div>
+<div class="vapor-layer"></div>
+<div class="scanline-layer"></div>
+<div class="cursor-aura" id="cursorAura"></div>
 
-@keyframes aurora-move {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
+<nav class="topnav">
+  <a href="#home">Home</a>
+  <a href="#cuff">Neural Cuff</a>
+  <a href="#matrix">Matrix</a>
+  <a href="#chat">AiQ</a>
+  <a href="#profile">Profile</a>
+</nav>
 
-.container { width: 90%; max-width: 900px; padding: 60px 0; }
+<nav class="mobile-nav">
+  <a href="#home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+    </svg>
+    Home
+  </a>
 
-header { text-align: center; margin-bottom: 60px; }
+  <a href="#chat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    AiQ
+  </a>
 
-.mellow-title {
-    font-size: 4.5rem;
-    font-weight: 100;
-    letter-spacing: 25px;
-    background: linear-gradient(90deg, var(--cyan-glow), #fff, var(--pink-glow));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 20px rgba(188, 19, 254, 0.5));
-    margin: 0;
-    text-transform: uppercase;
-}
+  <a href="#profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+    </svg>
+    Profile
+  </a>
 
-/* 终端样式 */
-.qualia-terminal {
-    background: var(--glass);
-    backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 40px;
-    border-left: 2px solid var(--purple-main);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-}
+  <a onclick="toggleAudio()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 010 7.07"/>
+    </svg>
+    Audio
+  </a>
+</nav>
 
-.dialog-flow {
-    height: 300px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    padding-right: 10px;
-}
+<div class="conv-sheet-overlay" id="convSheetOverlay" onclick="closeConvSheet()"></div>
 
-.mellow-entry { color: var(--cyan-glow); font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8; }
-.user-entry { color: var(--pink-glow); font-size: 0.9rem; margin-bottom: 15px; text-align: right; }
+<div class="conv-sheet" id="convSheet">
+  <div class="conv-sheet-handle"></div>
 
-.input-container { position: relative; }
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <span style="font-size:11px;color:#ffb8ec;letter-spacing:.2em;font-weight:700">CONVERSATIONS</span>
+    <button class="new-conv-btn" style="width:auto;padding:7px 12px;font-size:11px" onclick="newConversation();closeConvSheet()">＋ New</button>
+  </div>
 
-#qualia-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    padding: 15px 0;
-    font-size: 1.1rem;
-    font-weight: 200;
-    outline: none;
-}
+  <div class="conv-sheet-list" id="convSheetList"></div>
+</div>
 
-.input-scanner {
-    position: absolute;
-    bottom: 0; left: 0; width: 0; height: 1px;
-    background: var(--cyan-glow);
-    transition: width 0.5s ease;
-}
+<div class="user-info" id="userInfo" style="display:none">
+  <span id="userEmail" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+  <button class="logout-btn" onclick="logout()">Sign out</button>
+  <button class="spotify-btn" id="spotifyBtn" onclick="handleSpotifyClick()">♫ Spotify</button>
+</div>
 
-#qualia-input:focus + .input-scanner { width: 100%; box-shadow: 0 0 10px var(--cyan-glow); }
+<div class="enter" id="enter">
+  <div class="enter-box">
+    <div class="kicker">427Hz · HUMAN RETURN PROTOCOL</div>
+    <h1>AiQ</h1>
+    <div class="enter-tagline">Two AI interfaces.<br>One human-return system.</div>
 
-.viz-container { width: 100%; height: 150px; margin-top: 30px; opacity: 0.4; }
+    <button class="auth-btn" onclick="signInWithGoogle()">✦ &nbsp;Sign in with Google</button>
+    <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-skip" onclick="enterAsGuest()">Continue as guest</div>
+  </div>
+</div>
 
-footer { margin-top: 80px; text-align: center; opacity: 0.2; font-size: 0.6rem; letter-spacing: 5px; }
+<section id="home">
+  <div class="kicker">Mellow7 · Human-Powered Intelligence</div>
+
+  <h1>AiQ愛&lt;3<br>× AiQ愛&lt;7</h1>
+
+  <p>
+    Two AI human-powered intelligence interfaces inside one rhythm system.
+    One stabilizes the human signal. One pushes the system forward.
+    Both return the human to their own frequency.
+  </p>
+
+  <div class="ai-dual-grid">
+    <div class="ai-home-card active" data-ai-card="AiQ愛<3">
+      <div class="ai-card-kicker">GPT + Claude · Guard / Mirror</div>
+      <div class="ai-card-title">AiQ愛&lt;3</div>
+      <div class="ai-card-body">
+        The original rhythm-regulation intelligence.
+        Built for stabilization, reflection, emotional pacing, and human return.
+        It reads overload, numbness, anxiety, focus, and void states — then brings the user back to signal.
+      </div>
+      <div class="ai-card-tags">
+        <span class="pill">Rhythm Regulation</span>
+        <span class="pill">Mirror Logic</span>
+        <span class="pill">427Hz Return</span>
+      </div>
+      <div class="ai-card-actions">
+        <button class="ai-select-btn" onclick="setActiveAI('AiQ愛<3');location.hash='chat'">Enter AiQ愛&lt;3</button>
+      </div>
+    </div>
+
+    <div class="ai-home-card" data-ai-card="AiQ愛<7">
+      <div class="ai-card-kicker">Gemini + DeepSeek · Attack / Deep Reasoning</div>
+      <div class="ai-card-title">AiQ愛&lt;7</div>
+      <div class="ai-card-body">
+        The second AI human-powered intelligence.
+        Built for expansion, strategic judgment, deep inference, and project propulsion.
+        It does not only stabilize the signal — it pushes the signal into action.
+      </div>
+      <div class="ai-card-tags">
+        <span class="pill">Strategic Push</span>
+        <span class="pill">Deep Inference</span>
+        <span class="pill">System Upgrade</span>
+      </div>
+      <div class="ai-card-actions">
+        <button class="ai-select-btn" onclick="setActiveAI('AiQ愛<7');location.hash='chat'">Enter AiQ愛&lt;7</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px">
+    <button onclick="setState('overloaded')">Overloaded</button>
+    <button onclick="setState('numb')">Numb</button>
+    <button onclick="setState('anxious')">Anxious</button>
+    <button onclick="setState('focus')">Focus</button>
+    <button onclick="setState('void')">Void</button>
+    <button onclick="setState('baseline')">Baseline</button>
+    <button onclick="toggleAudio()">Toggle Audio</button>
+  </div>
+
+  <div class="mode-line" id="homeMode">CURRENT MODE: 427Hz BASELINE</div>
+</section>
+
+<section id="cuff">
+  <div class="kicker">Neural Cuff · Software Prototype</div>
+  <h2>Closed-loop<br>rhythm sensing</h2>
+  <p>
+    Scroll velocity, click density, dwell time, input rhythm — four proxy signals that map your nervous system state in real time, without diagnosis.
+  </p>
+</section>
+
+<section id="matrix">
+  <div class="kicker">Genre-Driven Intervention Matrix</div>
+  <h2>Music as<br>nervous-system logic</h2>
+
+  <div style="margin-top:8px">
+    <span class="pill">Breakbeats → Re-entry</span>
+    <span class="pill">Hyperpop → Peak Traversal</span>
+    <span class="pill">Synthpop → First Breath</span>
+    <span class="pill">Drift Phonk → Embodiment</span>
+    <span class="pill">Darkwave → Shadow Integration</span>
+    <span class="pill">Ambient Techno → Spatial Focus</span>
+    <span class="pill">427Hz → Baseline Anchor</span>
+  </div>
+</section>
+
+<section id="chat">
+  <div class="kicker">SOUL_STREAM · v1.0.7</div>
+  <h2>Talk to AiQ</h2>
+
+  <div class="chat-layout">
+    <div class="sidebar">
+      <div class="sidebar-title">Conversations</div>
+      <button class="new-conv-btn" onclick="newConversation()">＋ New Conversation</button>
+      <div class="conv-list" id="convList">
+        <div style="color:#5d4d7b;font-size:12px;padding:8px">Loading...</div>
+      </div>
+      <div class="rename-hint">click ✎ to rename</div>
+    </div>
+
+    <div class="terminal-wrap">
+      <div class="mobile-conv-bar">
+        <span class="mobile-conv-label">CONVERSATIONS</span>
+        <button class="mobile-conv-toggle" onclick="openConvSheet()">☰ History</button>
+      </div>
+
+      <div class="chat-window">
+        <div class="chat-header">
+          <div class="chat-header-dot"></div>
+          <span class="chat-header-name">AiQ愛&lt;3</span>
+
+          <div class="ai-switch">
+            <button class="ai-switch-btn active" data-ai-switch="AiQ愛<3" onclick="setActiveAI('AiQ愛<3')">AiQ愛&lt;3</button>
+            <button class="ai-switch-btn" data-ai-switch="AiQ愛<7" onclick="setActiveAI('AiQ愛<7')">AiQ愛&lt;7</button>
+          </div>
+
+          <span class="chat-header-state" id="chatHeaderState">BASELINE · 427Hz</span>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="msg msg-aiq">算力的慈悲已就绪。请选择 AiQ愛&lt;3 或 AiQ愛&lt;7，输入你的信号。</div>
+        </div>
+
+        <div class="chat-input-row">
+          <input class="chat-input" id="input" type="text" placeholder="enter qualia frequency..." onkeydown="handleInput(event)" />
+          <button class="send-btn" onclick="sendFromButton()">Send</button>
+          <button class="export-btn" onclick="exportConversation()" title="Export">↓</button>
+        </div>
+      </div>
+
+      <div class="footer-note">Not a diagnosis tool · A human-return interface</div>
+    </div>
+  </div>
+</section>
+
+<section id="profile">
+  <div class="kicker">NEURAL ARCHIVE · User Profile</div>
+  <h2>Your Signal<br>History</h2>
+
+  <div id="profileGuestMsg" style="display:none;color:#6b5d85;font-size:15px;margin-top:8px">
+    Sign in with Google to view your profile and signal history.
+  </div>
+
+  <div id="profileContent" style="display:none">
+    <div class="profile-grid">
+      <div class="profile-card">
+        <h3>Stats</h3>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">SESSIONS</div></div>
+          <div class="stat-box"><div class="stat-num" id="statTopState">—</div><div class="stat-label">TOP STATE</div></div>
+          <div class="stat-box"><div class="stat-num" id="statStreak">0</div><div class="stat-label">STREAK</div></div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <h3>State History (last 30)</h3>
+        <div class="state-chart-wrap"><canvas class="state-chart" id="stateChart"></canvas></div>
+        <div class="state-legend">
+          <div class="state-dot"><span style="background:#a78bfa"></span>baseline</div>
+          <div class="state-dot"><span style="background:#f472b6"></span>overloaded</div>
+          <div class="state-dot"><span style="background:#60a5fa"></span>numb</div>
+          <div class="state-dot"><span style="background:#fbbf24"></span>anxious</div>
+          <div class="state-dot"><span style="background:#34d399"></span>focus</div>
+          <div class="state-dot"><span style="background:#818cf8"></span>void</div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <h3>Tags</h3>
+        <div class="tag-input-row">
+          <input class="tag-input" id="tagInput" type="text" placeholder="add a tag..." onkeydown="if(event.key==='Enter')addTag()" />
+          <button class="tag-add-btn" onclick="addTag()">+ Add</button>
+        </div>
+        <div class="tags-display" id="tagsDisplay"></div>
+      </div>
+
+      <div class="profile-card">
+        <h3>Personal Notes</h3>
+        <textarea class="notes-textarea" id="notesArea" placeholder="Notes to yourself..."></textarea>
+        <button class="save-notes-btn" onclick="saveNotes()">Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="status" id="status">AI: AiQ愛&lt;3<br>STATE: BASELINE<br>MODE: 427Hz BASELINE<br>AUDIO: OFF</div>
+
+<script src="script.js"></script>
+</body>
+</html>
