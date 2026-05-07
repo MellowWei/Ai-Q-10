@@ -876,7 +876,7 @@ button:hover{
   display:flex;
   gap:3px;
   flex-shrink:0;
-  opacity:0;
+  opacity:1;
   transition:.15s;
 }
 
@@ -1882,6 +1882,32 @@ section{
   color:#ffb8ec;
 }
 
+
+
+/* ============================
+   CLICK + CONVERSATION MEMORY FIX
+============================ */
+.ai-home-card{ cursor:pointer; }
+.ai-home-card *{ pointer-events:auto; }
+.conv-actions{ opacity:1 !important; }
+.conv-item-title-input{
+  width:100%;
+  background:rgba(255,79,216,.1);
+  border:1px solid rgba(255,79,216,.4);
+  color:#fff4ff;
+  border-radius:8px;
+  padding:5px 8px;
+  font-size:12px;
+  outline:none;
+  font-family:inherit;
+}
+.local-memory-note{
+  color:#8f78c7;
+  font-size:11px;
+  padding:6px 8px;
+  line-height:1.45;
+}
+
 </style>
 </head>
 
@@ -2006,7 +2032,7 @@ section{
     </div>
 
     <div class="ai-dual-grid">
-      <div class="ai-home-card active" data-ai-card="AiQ愛<3">
+      <div class="ai-home-card active" data-ai-card="AiQ愛<3" onclick="enterAI('AiQ愛<3')">
         <div class="ai-card-kicker">GPT + Claude · Guard / Mirror</div>
         <div class="ai-card-title">AiQ愛&lt;3</div>
         <div class="ai-card-body">
@@ -2018,11 +2044,11 @@ section{
           <span class="pill">427Hz Return</span>
         </div>
         <div class="ai-card-actions">
-          <button class="ai-select-btn" onclick="setActiveAI('AiQ愛<3');location.hash='chat'">Enter AiQ愛&lt;3</button>
+          <button type="button" class="ai-select-btn" onclick="event.stopPropagation();enterAI('AiQ愛<3')">Enter AiQ愛&lt;3</button>
         </div>
       </div>
 
-      <div class="ai-home-card" data-ai-card="AiQ愛<7">
+      <div class="ai-home-card" data-ai-card="AiQ愛<7" onclick="enterAI('AiQ愛<7')">
         <div class="ai-card-kicker">Gemini + DeepSeek · Attack / Deep Reasoning</div>
         <div class="ai-card-title">AiQ愛&lt;7</div>
         <div class="ai-card-body">
@@ -2034,7 +2060,7 @@ section{
           <span class="pill">System Upgrade</span>
         </div>
         <div class="ai-card-actions">
-          <button class="ai-select-btn" onclick="setActiveAI('AiQ愛<7');location.hash='chat'">Enter AiQ愛&lt;7</button>
+          <button type="button" class="ai-select-btn" onclick="event.stopPropagation();enterAI('AiQ愛<7')">Enter AiQ愛&lt;7</button>
         </div>
       </div>
     </div>
@@ -2267,6 +2293,159 @@ let activeAI = "AiQ愛<3";
 let spotifyToken = null;
 let spotifyRefreshToken = null;
 
+const LOCAL_CONV_KEY = "aiaiq10_conversations_v3";
+const LOCAL_ACTIVE_CONV_KEY = "aiaiq10_active_conversation_v3";
+
+function getLocalUserKey(){
+  return (userId || "guest") + "::" + LOCAL_CONV_KEY;
+}
+
+function ensureStableGuestId(){
+  let id = localStorage.getItem("aiaiq10_guest_id");
+  if(!id){
+    id = "guest_" + crypto.randomUUID();
+    localStorage.setItem("aiaiq10_guest_id", id);
+  }
+  return id;
+}
+
+function readLocalConversations(){
+  try{
+    return JSON.parse(localStorage.getItem(getLocalUserKey()) || "[]");
+  }catch(e){
+    return [];
+  }
+}
+
+function writeLocalConversations(list){
+  localStorage.setItem(getLocalUserKey(), JSON.stringify(list));
+}
+
+function mergeConversations(localList, remoteList){
+  const map = new Map();
+  [...remoteList, ...localList].forEach(c => {
+    if(!c || !c.conversation_id) return;
+    const existing = map.get(c.conversation_id) || {};
+    map.set(c.conversation_id, {
+      ...existing,
+      ...c,
+      title:c.title || existing.title || "Untitled",
+      messages:Array.isArray(c.messages) ? c.messages : (Array.isArray(existing.messages) ? existing.messages : []),
+      created_at:c.created_at || existing.created_at || new Date().toISOString(),
+      updated_at:c.updated_at || existing.updated_at || c.created_at || new Date().toISOString()
+    });
+  });
+  return [...map.values()].sort((a,b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+}
+
+function makeTitleFromMessage(message){
+  const clean = String(message || "").replace(/\s+/g," ").trim();
+  if(!clean) return "New Conversation";
+  return clean.length > 28 ? clean.slice(0,28) + "…" : clean;
+}
+
+function createLocalConversation(title="New Conversation"){
+  const now = new Date().toISOString();
+  const conv = {
+    conversation_id:"local_" + crypto.randomUUID(),
+    title,
+    messages:[],
+    created_at:now,
+    updated_at:now
+  };
+  const list = readLocalConversations();
+  list.unshift(conv);
+  writeLocalConversations(list);
+  conversations = list;
+  currentConversationId = conv.conversation_id;
+  localStorage.setItem(LOCAL_ACTIVE_CONV_KEY, currentConversationId);
+  renderConvList();
+  renderConvSheetList();
+  return conv;
+}
+
+function localAppendTurn(userMessage, aiReply, preferredConversationId){
+  const now = new Date().toISOString();
+  let list = readLocalConversations();
+
+  if(!currentConversationId){
+    currentConversationId = preferredConversationId || "local_" + crypto.randomUUID();
+  }
+
+  let conv = list.find(c => c.conversation_id === currentConversationId);
+  if(!conv){
+    conv = {
+      conversation_id:currentConversationId,
+      title:makeTitleFromMessage(userMessage),
+      messages:[],
+      created_at:now,
+      updated_at:now
+    };
+    list.unshift(conv);
+  }
+
+  if((!conv.title || conv.title === "New Conversation") && userMessage){
+    conv.title = makeTitleFromMessage(userMessage);
+  }
+
+  conv.messages = Array.isArray(conv.messages) ? conv.messages : [];
+  conv.messages.push({role:"user",content:userMessage,timestamp:now});
+  conv.messages.push({role:"assistant",content:aiReply,timestamp:now,activeAI});
+  conv.updated_at = now;
+
+  list = list.filter(c => c.conversation_id !== conv.conversation_id);
+  list.unshift(conv);
+  writeLocalConversations(list);
+  conversations = list;
+  localStorage.setItem(LOCAL_ACTIVE_CONV_KEY, currentConversationId);
+  renderConvList();
+  renderConvSheetList();
+}
+
+function updateLocalConversationTitle(convId,newTitle){
+  let list = readLocalConversations();
+  list = list.map(c => c.conversation_id === convId ? {...c,title:newTitle,updated_at:new Date().toISOString()} : c);
+  writeLocalConversations(list);
+  conversations = conversations.map(c => c.conversation_id === convId ? {...c,title:newTitle} : c);
+}
+
+function deleteLocalConversation(convId){
+  const list = readLocalConversations().filter(c => c.conversation_id !== convId);
+  writeLocalConversations(list);
+  conversations = conversations.filter(c => c.conversation_id !== convId);
+  if(localStorage.getItem(LOCAL_ACTIVE_CONV_KEY) === convId){
+    localStorage.removeItem(LOCAL_ACTIVE_CONV_KEY);
+  }
+}
+
+function formatBackendError(error){
+  const raw = typeof error === "string" ? error : JSON.stringify(error || {});
+  if(/503|UNAVAILABLE|high demand|overloaded/i.test(raw)){
+    return activeAI === "AiQ愛<7"
+      ? "Gemini 当前高负载，但这不是系统坏了。当前输入已保存进对话记忆；稍后重试，或在后端把 AiQ愛<7 改成 Gemini 失败时继续 DeepSeek-only。"
+      : "当前模型高负载，不是页面坏了。当前输入已保存进对话记忆，可以稍后重试。";
+  }
+  if(/402|Insufficient Balance/i.test(raw)){
+    return "DeepSeek API 余额不足或额度尚未刷新。充值后等 1–3 分钟再试。当前输入已保存进对话记忆。";
+  }
+  return "Backend 暂时没有返回可用回复。当前输入已保存进对话记忆。错误信息：" + raw.slice(0,220);
+}
+
+function enterAI(name){
+  setActiveAI(name);
+  const chat = document.getElementById("chat");
+  if(chat){
+    chat.scrollIntoView({behavior:"smooth", block:"start"});
+  }else{
+    location.hash = "chat";
+  }
+  setTimeout(() => {
+    const input = document.getElementById("input");
+    if(input) input.focus();
+  }, 450);
+}
+
+
 const stateColors = {
   baseline:"#a78bfa",
   overloaded:"#f472b6",
@@ -2347,7 +2526,7 @@ async function signInWithGoogle(){
 }
 
 function enterAsGuest(){
-  userId = "guest_" + crypto.randomUUID();
+  userId = ensureStableGuestId();
   enterSystem();
   document.getElementById("profileGuestMsg").style.display = "block";
 }
@@ -2986,16 +3165,32 @@ async function saveNotes(){
 async function loadConversations(){
   if(!userId) return;
 
+  const localList = readLocalConversations();
+  conversations = localList;
+  renderConvList();
+  renderConvSheetList();
+
   try{
-    const res = await fetch(CONV_ENDPOINT + "?userId=" + userId);
+    const res = await fetch(CONV_ENDPOINT + "?userId=" + encodeURIComponent(userId));
     const data = await res.json();
+    const remoteList = data.conversations || [];
 
-    conversations = data.conversations || [];
+    conversations = mergeConversations(localList, remoteList);
+    writeLocalConversations(conversations);
     renderConvList();
+    renderConvSheetList();
 
-    if(conversations.length > 0) switchConversation(conversations[0].conversation_id);
+    const savedActive = localStorage.getItem(LOCAL_ACTIVE_CONV_KEY);
+    const preferred = conversations.find(c => c.conversation_id === savedActive) || conversations[0];
+    if(preferred) switchConversation(preferred.conversation_id);
   }catch(e){
-    console.error("Failed to load conversations:", e);
+    console.warn("Remote conversations unavailable; using local memory:", e);
+    conversations = localList;
+    renderConvList();
+    renderConvSheetList();
+    const savedActive = localStorage.getItem(LOCAL_ACTIVE_CONV_KEY);
+    const preferred = conversations.find(c => c.conversation_id === savedActive) || conversations[0];
+    if(preferred) switchConversation(preferred.conversation_id);
   }
 }
 
@@ -3062,9 +3257,8 @@ function buildConvList(el,isSheet){
 function startInlineRename(span,convId){
   const currentTitle = span.textContent;
   const input = document.createElement("input");
-
   input.value = currentTitle;
-  input.style.cssText = "width:100%;background:rgba(255,79,216,.1);border:1px solid rgba(255,79,216,.4);color:#fff4ff;border-radius:8px;padding:2px 8px;font-size:12px;outline:none;font-family:inherit;";
+  input.className = "conv-item-title-input";
 
   span.replaceWith(input);
   input.focus();
@@ -3077,22 +3271,19 @@ function startInlineRename(span,convId){
     saved = true;
 
     const newTitle = input.value.trim() || currentTitle;
+    updateLocalConversationTitle(convId,newTitle);
+    renderConvList();
+    renderConvSheetList();
 
     try{
-      await fetch(CONV_ENDPOINT + "?userId=" + userId + "&conversationId=" + convId, {
+      await fetch(CONV_ENDPOINT + "?userId=" + encodeURIComponent(userId) + "&conversationId=" + encodeURIComponent(convId), {
         method:"PATCH",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({title:newTitle})
       });
-
-      conversations = conversations.map(c =>
-        c.conversation_id === convId ? {...c,title:newTitle} : c
-      );
     }catch(err){
-      console.error("Rename failed:", err);
+      console.warn("Remote rename failed; local rename kept:", err);
     }
-
-    renderConvList();
   }
 
   input.addEventListener("keydown", ev => {
@@ -3100,10 +3291,10 @@ function startInlineRename(span,convId){
       ev.preventDefault();
       save();
     }
-
     if(ev.key === "Escape"){
       saved = true;
       renderConvList();
+      renderConvSheetList();
     }
   });
 
@@ -3111,32 +3302,48 @@ function startInlineRename(span,convId){
 }
 
 async function doDelete(convId){
+  deleteLocalConversation(convId);
+
+  if(currentConversationId === convId){
+    currentConversationId = null;
+    messagesEl.innerHTML = '<div class="msg msg-aiq">AiAiQ&lt;10 portal online. 魏珏然创造了我。请选择 AiQ愛&lt;3 或 AiQ愛&lt;7，输入你的信号。</div>';
+  }
+
+  renderConvList();
+  renderConvSheetList();
+
   try{
-    await fetch(CONV_ENDPOINT + "?userId=" + userId + "&conversationId=" + convId, {
+    await fetch(CONV_ENDPOINT + "?userId=" + encodeURIComponent(userId) + "&conversationId=" + encodeURIComponent(convId), {
       method:"DELETE"
     });
-
-    conversations = conversations.filter(c => c.conversation_id !== convId);
-
-    if(currentConversationId === convId){
-      currentConversationId = null;
-      messagesEl.innerHTML = '<div class="msg msg-aiq">AiAiQ&lt;10 portal online. 魏珏然创造了我。请选择 AiQ愛&lt;3 或 AiQ愛&lt;7，输入你的信号。</div>';
-    }
-
-    renderConvList();
   }catch(e){
-    console.error("Delete failed:", e);
+    console.warn("Remote delete failed; local delete kept:", e);
   }
 }
 
 async function switchConversation(convId){
   currentConversationId = convId;
+  localStorage.setItem(LOCAL_ACTIVE_CONV_KEY, convId);
   renderConvList();
+  renderConvSheetList();
+
+  const localConv = readLocalConversations().find(c => c.conversation_id === convId);
+  if(localConv && Array.isArray(localConv.messages)){
+    messagesEl.innerHTML = "";
+    if(localConv.messages.length === 0){
+      addMsg("新对话。你带什么信号进来？","aiq");
+    }else{
+      localConv.messages.forEach(m => {
+        addMsg(m.content, m.role === "user" ? "user" : "aiq");
+      });
+    }
+    return;
+  }
 
   messagesEl.innerHTML = '<div class="msg msg-system">loading...</div>';
 
   try{
-    const res = await fetch(CONV_ENDPOINT + "?userId=" + userId + "&conversationId=" + convId);
+    const res = await fetch(CONV_ENDPOINT + "?userId=" + encodeURIComponent(userId) + "&conversationId=" + encodeURIComponent(convId));
     const data = await res.json();
     const msgs = data.conversation?.messages || [];
 
@@ -3155,9 +3362,12 @@ async function switchConversation(convId){
 }
 
 function newConversation(){
-  currentConversationId = null;
+  createLocalConversation("New Conversation");
   messagesEl.innerHTML = '<div class="msg msg-aiq">新对话开始。你带什么信号进来？</div>';
   renderConvList();
+  renderConvSheetList();
+  const input = document.getElementById("input");
+  if(input) setTimeout(() => input.focus(), 80);
 }
 
 function exportConversation(){
@@ -3241,7 +3451,9 @@ async function sendMessage(input){
   addMsg(message,"user");
 
   if(isCreatorQuestion(message)){
-    addMsg(creatorIdentityReply(),"aiq");
+    const reply = creatorIdentityReply();
+    addMsg(reply,"aiq");
+    localAppendTurn(message, reply, null);
     typingStart = null;
     return;
   }
@@ -3272,17 +3484,17 @@ async function sendMessage(input){
     if(data.reply){
       addMsg(data.reply,"aiq");
       applyAIQPayload(data);
-
-      if(data.conversationId && !currentConversationId){
-        currentConversationId = data.conversationId;
-        await loadConversations();
-      }
+      localAppendTurn(message, data.reply, data.conversationId);
     }else if(data.error){
-      addMsg("[ERROR] " + data.error,"system");
+      const friendly = formatBackendError(data.error);
+      addMsg(friendly,"aiq");
+      localAppendTurn(message, friendly, data.conversationId);
     }
   }catch(error){
     hideThinking();
-    addMsg("[ERROR] " + error.message,"system");
+    const friendly = formatBackendError(error.message);
+    addMsg(friendly,"aiq");
+    localAppendTurn(message, friendly, null);
   }
 
   typingStart = null;
