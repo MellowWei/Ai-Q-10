@@ -80,11 +80,34 @@ State definitions:
 - void: existential heaviness, grief, darkness, meaning-depth
 
 Metric interpretation:
-- high scrollVelocity = possible overload / restless search
-- high clickDensity = possible anxious activation
-- long dwellSeconds + low inputTempo = possible numbness or deep processing
-- stable low movement + coherent text = possible focus
-- fast inputTempo + fragmented language = possible overload
+- high scrollVelocity (>2.0) = overload / restless search / loss of anchor
+- high clickDensity (>5) = anxious activation / seeking / hypervigilance
+- long dwellSeconds (>120) + low inputTempo (<1.5) = numbness / dissociation / heaviness / stuck
+- stable low movement + coherent text = focus / anchored signal
+- fast inputTempo (>8) + fragmented language = overload / racing / pressure
+- long dwellSeconds + existential/heavy language = void / grief / meaning collapse
+- short clear input + stable behavior = baseline
+
+New extended signals:
+- high cursorVelocity (>400 px/s) = physical restlessness / anxious energy / scanning
+- low cursorVelocity (<20 px/s) sustained = stillness / possible dissociation or deep focus
+- high deletionRate (>0.35) = unstable thought / self-censorship / internal conflict / overload
+- moderate deletionRate (0.10–0.30) = normal self-editing / careful communication
+- long pauseDuration (>4000ms) = emotional processing / stuck / hesitation / numbness
+- very long pauseDuration (>12000ms) = possible void / dissociation / or deep deliberation
+- high typingIrregularity (>200ms std dev) = rhythm disruption / anxious / fragmented internal state
+- low typingIrregularity (<50ms std dev) = focused / regulated / or mechanical/numb
+- short inputLength (<8 chars) = closed / testing / shutdown / or minimal signal
+- very long inputLength (>280 chars) = emotional flooding / overload / or high-trust deep disclosure
+- long sessionDuration (>1200s) = dependency / deep engagement / or stuck in emotional loop
+- short sessionDuration (<60s) = testing / transient / or quick check-in
+
+Cross-signal rules:
+- high deletionRate + high pauseDuration = internal conflict suppressed before sending
+- high cursorVelocity + high clickDensity = physical anxiety expression without verbal acknowledgment
+- low typingIrregularity + short inputLength + low scrollVelocity = possible shutdown / numb baseline
+- very long inputLength + high deletionRate = flooding then self-censoring = high emotional load
+- long sessionDuration + void/existential language = deep void state, needs anchoring not advice
 
 Music mapping:
 - baseline -> 427Hz BASELINE / 427Hz
