@@ -511,8 +511,10 @@ async function gptDefine7Aini(ctx) {
   if (!process.env.OPENAI_API_KEY) return null;
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const prompt = `You are the GPT Definition Position in a four-AI synergy producing a 7Aini persona response.
-Your job: produce a structured cognitive summary of what the user actually needs, INCLUDING what their body signals say beyond their words. You do NOT write the final user-facing response.
+  const prompt = `You are the GPT Definition Position in 7Aini's tiered routing system. Your job is twofold:
+
+1. Produce a structured cognitive summary of what the user actually needs (including body signal reading).
+2. Decide the response complexity tier — this routes whether the system uses fast mode (Claude only) or deep mode (full four-API synergy).
 
 ${build7AiniContextSummary(ctx)}
 
@@ -524,19 +526,44 @@ Return JSON in exactly this shape:
   "languageBodyTension": "is there a gap between what they SAY and what their BODY shows? if yes, describe it",
   "languageContext": "what tone and language register the response should honor",
   "mustAddressPoints": ["bullet list of information points the final response MUST cover, including body signals if relevant"],
-  "suggestedState": "baseline | overloaded | numb | anxious | focus | void"
+  "suggestedState": "baseline | overloaded | numb | anxious | focus | void",
+  "complexityTier": "fast | deep",
+  "tierReason": "one sentence why fast or deep"
 }
 
-Be precise. Read the body, not just the words. This is internal scaffolding.`;
+COMPLEXITY ROUTING RULES — set complexityTier based on these criteria:
+
+Use "fast" (Claude-only mode, ~5-8 seconds) when:
+- User input is a simple greeting or short reply (<30 chars)
+- User input is a casual emotional check-in ("我好累", "心情不好", "有点焦虑")
+- User input is a single concrete question with clear intent
+- Body signals are stable (deletionRate < 0.2, pauseDuration < 4000ms)
+- No language-body tension detected
+- User state is baseline or focus
+- Conversation is in continuation mode (follow-up to previous turn)
+
+Use "deep" (full four-API synergy, ~13-18 seconds) when:
+- User input is a complex multi-part question requiring deep reasoning
+- User input challenges core propositions (asks about consciousness, meaning, philosophy of mind)
+- User input shows high emotional density combined with cognitive complexity
+- Body signals show significant tension (high deletionRate, very long pauseDuration, high typingIrregularity)
+- Strong language-body tension detected (calm words + restless body, or vice versa)
+- User asks for explicit analysis, framework, deep exploration
+- User state is void, overloaded with content complexity, or numb requiring detonation
+- Input involves multiple competing values or worldviews
+
+Default to "fast" when uncertain. Most casual conversations should be fast. Reserve "deep" for moments where the additional latency is justified by genuine analytical or emotional depth.
+
+Be precise about the routing decision. This determines user-facing speed.`;
 
   try {
     const completion = await client.chat.completions.create({
       model: process.env.OPENAI_MODEL_7AINI || "gpt-4o-mini",
-      temperature: 0.4,
-      max_tokens: 380,
+      temperature: 0.3,
+      max_tokens: 420,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: "You return valid JSON only. You are an internal cognitive-summary layer that reads body signals alongside words." },
+        { role: "system", content: "You return valid JSON only. You are 7Aini's routing brain — you decide tier (fast/deep) and produce cognitive scaffolding." },
         { role: "user", content: prompt }
       ]
     });
@@ -632,25 +659,33 @@ async function claudePolish7Aini(ctx, gptDefine, deepseekReason, geminiDetonate)
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  const tier = (gptDefine?.complexityTier || "fast").toLowerCase();
+  const tierLabel = tier === "deep" ? "DEEP MODE (full four-API synergy)" : "FAST MODE (Claude-only)";
+
   const workingDrafts = `INTERNAL WORKING DRAFTS (not user-facing — synthesize through 7Aini persona):
+
+OPERATING TIER: ${tierLabel}
+Tier reason: ${gptDefine?.tierReason || "default fast mode"}
 
 User raw input message: ${ctx.message}
 User detected frontend state: ${ctx.state}
 User ten-dimensional metrics:
 ${JSON.stringify(ctx.metrics || {}, null, 2)}
 
-GPT-Define output (30% weight, treat must-address points as strong constraints, USE bodySignalReading and languageBodyTension):
+GPT-Define output (cognitive scaffolding — always available):
 ${JSON.stringify(gptDefine || { note: "GPT-Define unavailable, proceed without" })}
 
-DeepSeek-Reason output (10% weight, treat audit as logical constraint, USE bodyLanguageTensionFlags):
-${JSON.stringify(deepseekReason || { note: "DeepSeek-Reason unavailable, proceed without" })}
+${tier === "deep" ? `DeepSeek-Reason output (logical audit — deep mode active):
+${JSON.stringify(deepseekReason || { note: "DeepSeek-Reason unavailable" })}
 
-Gemini-Detonate output (20% weight, selectively adopt based on 7Aini persona alignment, USE bodyReadingInsights):
-${JSON.stringify(geminiDetonate || { note: "Gemini-Detonate unavailable, proceed without" })}
+Gemini-Detonate output (disruptive perspectives — deep mode active):
+${JSON.stringify(geminiDetonate || { note: "Gemini-Detonate unavailable" })}` : `(Fast mode active — DeepSeek and Gemini bypassed for speed. Generate response from GPT scaffolding alone.)`}
 
 Now produce the final user-facing 7Aini response.
 
 CRITICAL: 7Aini's defining capability is reading the body, not just the words. If the metrics show a clear gap between the user's words and their body signals (high deletionRate with calm tone, high pauseDuration with short reply, high cursorVelocity with coherent text, etc.), NAME THE BODY in your response. This is what makes 7Aini different from generic chatbots. This is what AiAiQ<10's About section promises: "身体比语言诚实".
+
+In FAST MODE, keep the response sharper and more concise — the user wants speed. In DEEP MODE, allow more depth, layering, and integration of disruptive perspectives — the user is in a moment that justifies the wait.
 
 Output JSON:
 {
@@ -688,16 +723,34 @@ The reply field is the only user-facing output. Write as 7Aini per the system pr
 }
 
 async function run7Aini(ctx) {
-  // Stage 1: PARALLEL execution of three working positions
-  // GPT-Define, DeepSeek-Reason, Gemini-Detonate run simultaneously to minimize latency
-  const [gptDefine, deepseekReason, geminiDetonate] = await Promise.all([
-    gptDefine7Aini(ctx),
-    deepseekReason7Aini(ctx),
-    geminiDetonate7Aini(ctx)
-  ]);
+  // Stage 1: GPT-Define routes the request — decides fast (Claude only) or deep (full synergy)
+  // GPT-Define is always called first because it determines the tier
+  const gptDefine = await gptDefine7Aini(ctx);
 
-  // Stage 2: SERIAL — Claude polish position synthesizes the three drafts into final 7Aini voice
+  const tier = (gptDefine?.complexityTier || "fast").toLowerCase();
+
+  let deepseekReason = null;
+  let geminiDetonate = null;
+
+  if (tier === "deep") {
+    // Deep mode: invoke DeepSeek and Gemini in parallel for full four-API synergy
+    // Total latency ≈ max(DeepSeek, Gemini) + Claude ≈ 13-18 seconds
+    [deepseekReason, geminiDetonate] = await Promise.all([
+      deepseekReason7Aini(ctx),
+      geminiDetonate7Aini(ctx)
+    ]);
+  }
+  // Fast mode skips DeepSeek and Gemini — only GPT define + Claude polish
+  // Total latency ≈ GPT-Define + Claude ≈ 5-8 seconds
+
+  // Stage 2: Claude polish position generates final 7Aini voice
+  // Receives whatever drafts are available (full set in deep mode, only GPT in fast mode)
   const finalDraft = await claudePolish7Aini(ctx, gptDefine, deepseekReason, geminiDetonate);
+
+  // Tag the response with tier info for transparency
+  if (gptDefine?.complexityTier) {
+    finalDraft._tier = tier;
+  }
 
   return normalizePayload(finalDraft, { activeAI: SEVEN_AINI, conversationId: ctx.conversationId });
 }
