@@ -338,6 +338,29 @@ section{scroll-margin-top:80px;}
 .fold-desc-en{color:#a98dff;font-size:12px;line-height:1.65;margin:0;font-style:italic;}
 @media(max-width:720px){.dim-num{font-size:34px}.dim-name-zh{font-size:22px}.fold-name{font-size:20px}}
 
+
+/* TEN-DIMENSION SIGNAL GRID */
+.ten-dim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;margin-top:24px;margin-bottom:18px;}
+.ten-dim-group{border:1px solid rgba(98,247,255,.22);background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(98,247,255,.025));border-radius:18px;padding:20px;backdrop-filter:blur(16px);}
+.ten-dim-group.ten-dim-body{border-color:rgba(255,79,216,.24);background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,79,216,.03));}
+.ten-dim-group-label{font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:900;color:#62f7ff;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(98,247,255,.18);}
+.ten-dim-group.ten-dim-body .ten-dim-group-label{color:#ff8bdc;border-bottom-color:rgba(255,79,216,.18);}
+.ten-dim-row{display:grid;grid-template-columns:34px 90px 130px 1fr;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.ten-dim-row:last-child{border-bottom:none;}
+.ten-dim-num{font-family:Georgia,serif;font-size:18px;color:#62f7ff;font-weight:400;}
+.ten-dim-group.ten-dim-body .ten-dim-num{color:#ff8bdc;}
+.ten-dim-zh{font-size:14px;color:#fff4ff;font-weight:500;letter-spacing:.02em;}
+.ten-dim-en{font-family:'Courier New',monospace;font-size:11px;color:#a98dff;letter-spacing:.02em;}
+.ten-dim-meaning{font-size:11px;color:#cdbdff;line-height:1.4;}
+.ten-dim-coda{margin-top:18px;padding-top:18px;border-top:1px dashed rgba(255,79,216,.18);font-size:14px;line-height:1.85;color:#e2d8f0;}
+.ten-dim-coda b{color:#ff8bdc;}
+@media(max-width:720px){
+  .ten-dim-grid{grid-template-columns:1fr;}
+  .ten-dim-row{grid-template-columns:30px 78px 1fr;}
+  .ten-dim-row .ten-dim-meaning{grid-column:1/-1;padding-left:40px;font-size:10px;}
+  .ten-dim-row .ten-dim-en{font-size:10px;}
+}
+
 </style>
 </head>
 
@@ -598,10 +621,37 @@ section{scroll-margin-top:80px;}
     <div class="about-block">
       <h3 class="about-h3">它读什么 / What it reads</h3>
       <p class="about-zh">
-        不只是你的字。是你打字的速度、停顿的长度、删改的频率、光标的速度、点击的密度、停留的时间。十个维度同时分析。身体比语言诚实。AiAiQ&lt;10 听身体。
+        不只是你的字。AiAiQ&lt;10 同时读取十个维度的信号——前四个读你的<b>意图</b>，后六个读你的<b>身体</b>。语言可以被组织和伪装，身体不能。
       </p>
       <p class="about-en">
-        Not just your words. Your typing speed, pause duration, deletion rate, cursor velocity, click density, dwell time. Ten signals at once. The body is more honest than language. AiAiQ&lt;10 listens to the body.
+        Not just your words. AiAiQ&lt;10 reads ten signal dimensions simultaneously — the first four read your <b>intent</b>, the next six read your <b>body</b>. Language can be composed and performed; the body cannot.
+      </p>
+
+      <div class="ten-dim-grid">
+        <div class="ten-dim-group">
+          <div class="ten-dim-group-label">意图层 · Intent Layer · 4 signals</div>
+          <div class="ten-dim-row"><span class="ten-dim-num">01</span><span class="ten-dim-zh">滚动速度</span><span class="ten-dim-en">scrollVelocity</span><span class="ten-dim-meaning">焦躁搜索 vs 锚点稳定 · restless search vs anchored</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">02</span><span class="ten-dim-zh">点击密度</span><span class="ten-dim-en">clickDensity</span><span class="ten-dim-meaning">焦虑激活 vs 平稳接触 · anxious activation vs steady contact</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">03</span><span class="ten-dim-zh">停留时间</span><span class="ten-dim-en">dwellSeconds</span><span class="ten-dim-meaning">深入参与 vs 卡住麻木 · deep engagement vs stuck/numb</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">04</span><span class="ten-dim-zh">输入节奏</span><span class="ten-dim-en">inputTempo</span><span class="ten-dim-meaning">急速过载 vs 清晰聚焦 · racing/overload vs clear focus</span></div>
+        </div>
+
+        <div class="ten-dim-group ten-dim-body">
+          <div class="ten-dim-group-label">身体层 · Body Layer · 6 signals</div>
+          <div class="ten-dim-row"><span class="ten-dim-num">05</span><span class="ten-dim-zh">光标速度</span><span class="ten-dim-en">cursorVelocity</span><span class="ten-dim-meaning">身体焦躁 vs 静止 · physical restlessness vs stillness</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">06</span><span class="ten-dim-zh">删改频率</span><span class="ten-dim-en">deletionRate</span><span class="ten-dim-meaning">自我审查 vs 流畅表达 · self-censorship vs fluent expression</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">07</span><span class="ten-dim-zh">停顿长度</span><span class="ten-dim-en">pauseDuration</span><span class="ten-dim-meaning">情绪处理 vs 流畅 · emotional processing vs flow</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">08</span><span class="ten-dim-zh">节奏稳定性</span><span class="ten-dim-en">typingIrregularity</span><span class="ten-dim-meaning">节律失序 vs 规律 · rhythm disruption vs regulated</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">09</span><span class="ten-dim-zh">输入长度</span><span class="ten-dim-en">inputLength</span><span class="ten-dim-meaning">情绪洪流 vs 关闭 · emotional flooding vs closed</span></div>
+          <div class="ten-dim-row"><span class="ten-dim-num">10</span><span class="ten-dim-zh">会话时长</span><span class="ten-dim-en">sessionDuration</span><span class="ten-dim-meaning">深度参与 vs 试探 · deep engagement vs testing</span></div>
+        </div>
+      </div>
+
+      <p class="about-zh ten-dim-coda">
+        当语言层说"我没事"但身体层显示高删改、长停顿、不规则节律——AiAiQ&lt;10 命名身体而不是回应文字。<b>身体比语言诚实。</b>但只在身体真的在说话时读，不在用户切走干别的事时分析。
+      </p>
+      <p class="about-en ten-dim-coda">
+        When words say "I'm fine" but the body shows high deletion, long pauses, irregular rhythm — AiAiQ&lt;10 names the body, not the words. <b>The body is more honest than language.</b> But only read when the body is actually speaking, not when the user has stepped away.
       </p>
     </div>
 
@@ -816,8 +866,8 @@ section{scroll-margin-top:80px;}
   <div class="kicker">Neural Cuff · Software Prototype</div>
   <h2>闭环节律感知<br>Closed-loop rhythm sensing</h2>
   <p>
-    滚动速度、点击密度、停留时间、输入节奏——四个代理信号实时映射神经系统状态，但不把人简化成诊断。<br>
-    Scroll velocity, click density, dwell time, and input rhythm — four proxy signals that map nervous-system state in real time without reducing the human to diagnosis.
+    滚动速度、点击密度、停留时间、输入节奏、光标速度、删改频率、停顿长度、节奏稳定性、输入长度、会话时长——十个代理信号实时映射神经系统状态。前四个读你的意图，后六个读你的身体。语言可以伪装，身体不能。AiAiQ&lt;10 同时读两层，但不把人简化成诊断。<br>
+    Scroll velocity, click density, dwell time, input rhythm, cursor velocity, deletion rate, pause duration, typing irregularity, input length, session duration — ten proxy signals that map nervous-system state in real time. The first four read your intention; the next six read your body. Language can be performed; the body cannot. AiAiQ&lt;10 reads both layers without reducing the human to diagnosis.
   </p>
 </section>
 
