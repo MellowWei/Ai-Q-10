@@ -361,6 +361,44 @@ section{scroll-margin-top:80px;}
   .ten-dim-row .ten-dim-en{font-size:10px;}
 }
 
+
+/* TOPNAV MAIN PORTAL LINK */
+.topnav a.topnav-main{border-color:rgba(255,227,110,.34);background:rgba(255,227,110,.06);color:#ffe36e;text-shadow:0 0 14px rgba(255,227,110,.32);}
+.topnav a.topnav-main:hover{background:rgba(255,227,110,.22);border-color:rgba(255,227,110,.85);color:#fff;box-shadow:0 0 30px rgba(255,227,110,.5);}
+
+/* IDENTITY · CONNECT CARD */
+.identity-connect-card{margin-top:18px;border:1px solid rgba(255,227,110,.20);border-radius:22px;background:linear-gradient(140deg,rgba(255,227,110,.045),rgba(255,79,216,.025));padding:22px;}
+.identity-connect-card h3{margin:0 0 16px;color:#ffe36e;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:900;}
+.connect-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;}
+.connect-item{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:1px solid rgba(255,255,255,.06);border-radius:14px;background:rgba(7,4,19,.32);text-decoration:none;transition:.22s ease;}
+.connect-item:hover:not(.connect-item-static){border-color:rgba(255,227,110,.5);background:rgba(255,227,110,.06);transform:translateY(-2px);box-shadow:0 0 22px rgba(255,227,110,.14);}
+.connect-item-static{cursor:default;}
+.connect-key{font-family:'Share Tech Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.18em;color:#ffe36e;text-transform:uppercase;font-weight:900;}
+.connect-val{font-size:14px;color:#fff4ff;font-weight:600;letter-spacing:.01em;}
+.connect-note{font-size:11px;color:#a98dff;font-style:italic;}
+
+/* FOOTER */
+.aiq-footer{margin-top:80px;padding:60px 32px 50px;border-top:1px solid rgba(255,79,216,.18);background:linear-gradient(180deg,rgba(7,4,19,.0),rgba(7,4,19,.55));position:relative;z-index:25;}
+.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;align-items:start;}
+.footer-col-brand .footer-brand-name{font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:400;letter-spacing:-.02em;color:#fff4ff;margin:0 0 4px;background:linear-gradient(135deg,#ffe36e 0%,#ff8bdc 60%,#62f7ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.footer-col-brand .footer-brand-sub{font-family:'Share Tech Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;color:#a98dff;text-transform:uppercase;margin-bottom:14px;}
+.footer-col-brand .footer-brand-desc{font-size:13px;color:#cdbdff;line-height:1.75;max-width:380px;}
+.footer-col-brand .footer-brand-desc b{color:#ffe36e;}
+.footer-col h4{margin:0 0 14px;font-family:'Share Tech Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;color:#ffe36e;text-transform:uppercase;font-weight:900;}
+.footer-link-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.footer-link-list a,.footer-link-list span{color:#dbcfff;text-decoration:none;font-size:13px;transition:.18s ease;display:inline-flex;align-items:center;gap:6px;}
+.footer-link-list a:hover{color:#fff;text-shadow:0 0 14px rgba(255,139,220,.5);transform:translateX(2px);}
+.footer-link-list span.footer-static{color:#a98dff;}
+.footer-link-list .link-meta{font-size:10px;color:#7d6caa;letter-spacing:.06em;}
+.footer-bottom{max-width:1200px;margin:36px auto 0;padding-top:22px;border-top:1px solid rgba(255,79,216,.10);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;}
+.footer-bottom .footer-coords{font-family:'Share Tech Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.18em;color:#a98dff;}
+.footer-bottom .footer-coords b{color:#ffe36e;}
+.footer-bottom .footer-tagline{font-size:11px;color:#7d6caa;font-style:italic;letter-spacing:.04em;}
+@media(max-width:920px){
+  .footer-grid{grid-template-columns:1fr;gap:30px;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;}
+}
+
 </style>
 </head>
 
@@ -392,6 +430,7 @@ section{scroll-margin-top:80px;}
   <a href="#seven-fold">7-Fold / 七位</a>
   <a href="#chat">7Aini / 对话</a>
   <a href="#profile">Profile / 档案</a>
+  <a href="https://mellowwei.github.io/MellowWei/" target="_blank" rel="noopener" class="topnav-main">↗ Mellow Wei 主站</a>
 </nav>
 
 <nav class="mobile-nav">
@@ -574,6 +613,37 @@ section{scroll-margin-top:80px;}
         <p>
           AiAiQ&lt;10、7Aini、星野灵7爱宇宙的全部架构、命名、节律协议、世界观、原创音乐与系统设计，由魏珏然 / Wei Jueran / Mellow Wei 创作。这是一个 IP 资产，不是一个工具产品。<br><br>The full architecture, naming system, rhythm protocols, worldbuilding, original music, and system design of AiAiQ&lt;10, 7Aini, and the xingyeLing7Ai universe are authored by Wei Jueran / Mellow Wei. This is an IP property, not a tool product.
         </p>
+      </div>
+
+      <div class="identity-connect-card">
+        <h3>// Connect · 连接创作者</h3>
+        <div class="connect-grid">
+          <a class="connect-item" href="https://mellowwei.github.io/MellowWei/" target="_blank" rel="noopener">
+            <span class="connect-key">PORTAL</span>
+            <span class="connect-val">mellowwei.github.io/MellowWei</span>
+            <span class="connect-note">主站 · full universe map</span>
+          </a>
+          <a class="connect-item" href="mailto:mellowwei7@gmail.com">
+            <span class="connect-key">EMAIL · personal</span>
+            <span class="connect-val">mellowwei7@gmail.com</span>
+            <span class="connect-note">个人 · creative / collaboration</span>
+          </a>
+          <a class="connect-item" href="mailto:jueran@upenn.edu">
+            <span class="connect-key">EMAIL · academic</span>
+            <span class="connect-val">jueran@upenn.edu</span>
+            <span class="connect-note">学术 · UPenn research</span>
+          </a>
+          <a class="connect-item" href="https://www.instagram.com/laputamellow" target="_blank" rel="noopener">
+            <span class="connect-key">INSTAGRAM</span>
+            <span class="connect-val">@laputamellow</span>
+            <span class="connect-note">visual · daily field</span>
+          </a>
+          <div class="connect-item connect-item-static">
+            <span class="connect-key">XIAOHONGSHU · 小红书</span>
+            <span class="connect-val">羊驼小镇｜判断力</span>
+            <span class="connect-note">中文 · 思考节律</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2214,5 +2284,48 @@ loadSpotifyTokens();
 initAuth();
 setTimeout(handleSpotifyCallback,500);
 </script>
+
+<footer class="aiq-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-col-brand">
+      <div class="footer-brand-name">AiAiQ&lt;10</div>
+      <div class="footer-brand-sub">// xingyeLing7Ai · 7Aini · Human Return Portal</div>
+      <p class="footer-brand-desc">
+        星野灵7爱宇宙的中心人格化身。<b>不是诊断工具，是返回界面。</b><br>
+        The central persona of the xingyeLing7Ai universe. <b>Not a diagnosis tool — a human-return interface.</b>
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h4>// Connect · 连接</h4>
+      <ul class="footer-link-list">
+        <li><a href="mailto:mellowwei7@gmail.com">mellowwei7@gmail.com<span class="link-meta">· personal</span></a></li>
+        <li><a href="mailto:jueran@upenn.edu">jueran@upenn.edu<span class="link-meta">· academic</span></a></li>
+        <li><a href="https://www.instagram.com/laputamellow" target="_blank" rel="noopener">@laputamellow<span class="link-meta">· instagram</span></a></li>
+        <li><span class="footer-static">羊驼小镇｜判断力<span class="link-meta">· 小红书</span></span></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>// Universe · 宇宙</h4>
+      <ul class="footer-link-list">
+        <li><a href="https://mellowwei.github.io/MellowWei/" target="_blank" rel="noopener">↗ Mellow Wei 主站<span class="link-meta">· portal</span></a></li>
+        <li><a href="https://mellowwei.github.io/BCI/" target="_blank" rel="noopener">↗ BCI · HRP<span class="link-meta">· neural cuff</span></a></li>
+        <li><a href="https://mellowwei.github.io/MellowEd/" target="_blank" rel="noopener">↗ MellowEd<span class="link-meta">· education</span></a></li>
+        <li><a href="https://mellowwei.github.io/QualiaRhythmMatrix/" target="_blank" rel="noopener">↗ 振动即存在<span class="link-meta">· vibration ontology</span></a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-coords">
+      <b>427Hz</b> · 44271 · 77347 · <b>2026</b> · Philadelphia · UPenn · EDT
+    </div>
+    <div class="footer-tagline">
+      Wei Jueran · Mellow Wei · 魏珏然 · 星野灵7爱
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
